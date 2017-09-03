@@ -2,17 +2,20 @@ void Mode_Pattern(){
 
   Verticalize_Pattern();// cf fonction, 
 
-
+  // we read the buttons
   unsigned int reading = SR.Button_Step_Read();// on lit les boutons
+  // if they have changes, we record them
   if(reading!=old_step_button_state){// si ils ont changer on enregistre le temps
     millis_debounce_step_button=millis();
   }
+  // after the debounce time, we compare the new value of the buttons to the old value
   if((millis()-millis_debounce_step_button)>=DEBOUNCE){//apres le temps de debounce on compare la valeur des boutons avec l'ancienne valeur
     if(reading!=step_button_state){
       step_button_state=reading;
 
       //CHECK LE STATUT DES STEP BOUTONS-------------------------------------------------------------------
       for (byte i=0;i<16;i++){
+        // initialize the the array of the value of each step button
         step_button_just_pressed[i]=0;//initialise l'array de la valeur de chaque bouton step
         step_button_current_state[i]= bitRead(reading,i);
         if (step_button_current_state[i]!=step_button_previous_state[i]){
@@ -33,6 +36,7 @@ void Mode_Pattern(){
           for (byte i=0;i<16;i++){
             if (step_button_just_pressed[i]){
               if(solo_mode){
+                // mute all the instruments except the one pressed with "SOLO EXCLUSIVE"
                 inst_mute = (B11111111 & (B11111111 <<8)) | ~(1<<i);//on mute tous les intrus sauf celui appuyer SOLO EXCLUSIF
                 for (byte ct=0;ct<16;ct++){//on reinitialise les compteur des instrument smuter a 1 pour pouvoir les demuter en reappuyant dessus
                   step_button_count[ct]=1;
@@ -126,18 +130,25 @@ void Mode_Pattern(){
       if(selected_mode==PATTERN_EDIT){
         if(play){//si seq en run 
           if (button_shift){//si bouton shift appuyer
+            // loop as many times as the step button is 16
             for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
               if (bitRead (step_button_state,i)){
+                // if the shift button is pressed, we return the value of number of steps
                 // si le bouton shift est appuyer on retourne la valeur du nombre de step
                 nbr_step[pattern_buffer]=(i+(16*button_pattern_part))+1;
+                // the number of steps of the pattern changed
                 nbr_step_changed=1;//le nombre de pas du pattern a change
               }
             }
           }
+          // if shift button not pressed, we return the value of buttons in the edited pattern
           else{// sinon bouton shift pas appuyer on retourne la valeur des boutons dans dans le pattern editer
+            // flag for if the pattern was changed since last save
             selected_pattern_edited=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
+            // flag for if the pattern was changed since last save
             selected_pattern_edited_saved=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
             //pattern_in_midi_buffer=0;
+            // the pattern equals the value of buttons pressed
             pattern[pattern_buffer][selected_inst][button_pattern_part] ^= step_button_state ;//le pattern egale la valeur des boutons appuyer 
             //Serial.println(pattern[pattern_buffer][selected_inst][button_pattern_part],BIN);
           }
@@ -146,6 +157,7 @@ void Mode_Pattern(){
           if (button_shift){//si bouton shift appuyer
             for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
               if (bitRead (step_button_state,i)){
+                // if the shift button is pressed, we return the chosen bank
                 // si le bouton shift est appuyer on retourne la bank selectionner selectionner
                 pattern_bank=i;
                 break;
@@ -155,6 +167,7 @@ void Mode_Pattern(){
           else{
             for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
               if (bitRead (step_button_state,i)){
+                // we return the value of the chosen pattern
                 //on retourne la valeur du pattern selectionner
                 selected_pattern=i;
                 break;
@@ -167,7 +180,9 @@ void Mode_Pattern(){
         }
       }
     }
+    // if we have released (unpushed) all the buttons
     else if (step_button_state==0){//si on a relacher tous les boutons 
+      // we initialize the counter of the number of pushed buttons
       pushed_button_step_count=0;//on initialise le compteur du nombre de bouton appuyer
     }
   }
