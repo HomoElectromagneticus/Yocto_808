@@ -188,8 +188,11 @@ void Mode_Pattern(){
   }
 
   //BLOCK SELECTIONNER ------------------------------------
+  // function that makes the chosen pattern advance when a block is selected
   //Fonction qui fait avancer le pattern selectionner quand un block est selectionner
+  // a block is chosen and we have advanced in the measure
   if ((nbr_pattern_block!=0)&& (middle_mesure_flag)){//un block est se'lectionner et on a avnacer dans la mesure 
+    // the selected pattern equals the first pattern + the count pattern that incremented in the interrup
     selected_pattern=low_selected_pattern + pattern_count;//le pattern selectionner egal le premier pattern + le coount pattern qui incrementer dans l'interuption
     selected_pattern_changed=1;//flag que le pattern selectionner a change permet de verticalize
     middle_mesure_flag=0;//reset flag que la mesure a avancé
