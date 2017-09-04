@@ -1,4 +1,5 @@
 //=======================================================================
+//function which initializes an empty pattern with 16 steps on a 1/16 scale
 //fonction qui initialize un pattern vide avec 16pas et la scale en 1/16
 //=======================================================================
 
@@ -61,6 +62,7 @@ void Clear_Pattern(){
 }
 
 //=======================================================================
+//function which copies the selected pattern in the buffer
 //fonction qui copie le pattern selectionner dans le buffer
 //=======================================================================
 
@@ -128,6 +130,7 @@ void Copy_Pattern()
 }
 
 //=======================================================================
+//function which pastes the pattern in the buffer to the selected pattern
 //fonction qui paste le pattern dans le buffer dans le pattern selectionne
 //=======================================================================
 
