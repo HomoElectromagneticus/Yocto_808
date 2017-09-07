@@ -36,14 +36,19 @@ void Count_96PPQN()
   //PLAY=================================================================
   if (play){
 
+    // update the flashing of the LEDs
     //update le clignotement des leds
     if (tempo_led_count>=48){
+      // if the counter equals a tempo, you reinitialize it
       tempo_led_count=0;//si le compteur egale un temps on le reinitialise
+      // flash the tempo LED
       tempo_led_flag_block=!tempo_led_flag_block;//clignote au tempo
     }
+    // we alternate the value of the flag of the LED tempo
     if(ppqn_count>=12) tempo_led_flag=0;//on alterne la valeur du flag de la led tempo.
     else tempo_led_flag=1; 
 
+    //is it the start?
     //est ce le demarrage ?
     if(first_play){
       MIDI_Send(0xfa);//Serial1.write(0xfa);//Midi Start
@@ -53,6 +58,8 @@ void Count_96PPQN()
       Send_Trig_Out();
       first_play=0;
     }
+    // the first note after the push on start needs to be shifted over / delayed one pulse
+    // the PPQN needs to be savvy (?) with the first note of the machine in SLAVE DIN mode
     //la premiere note apres l'appuie sur start doit etre decale d'une pulsation 
     //de PPQN pour etre calée avec la premiere note de la machine en SLAVE DIN
     if (first_play_A && (ppqn_count==1)){
