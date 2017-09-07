@@ -54,9 +54,11 @@ byte major_version = 2;
 byte minor_version = 0;
 
 
+// here you can find all the variables of the program
 //ici se trouve toutes les variables du programme
 //------------------------------------------------
 
+// variable of the selected instrument
 byte selected_inst; //variable de l'instrument selectioner cf Check_rotary_switch
 
 //Variable des modes
@@ -72,23 +74,38 @@ unsigned int bpm; // bpm du sequenceur depend de l'encodeur
 unsigned int timer_time;// temps d'overflow du timer depend du bpm
 byte sync_mode;//mode de synhcronisation 0=master 1=Din slave 2=Midi slave
 
+// variable which serves to check the edit buttons
 //variable qui serve a checker les buttons Edits
 //====================================================
+// variable "state of the play button" - the state can be modified in the main program and the interrupt functions
 boolean play =0;//variable de l'etat du bouton play en volatile car elle peut etre modifier dans l'interruption et dans le programme
+//--------------------use in the interrups------------------------------------------//
 //--------------------utiliser dans les interruptions-------------------------------//
+// use to read the first step - indicates that the "prayer loop" after pressing play
 volatile boolean first_play=0;//Utiliser pour lire le premier pas  indique que c la priere boucle apres l'appuie sur play
+// ? first
 volatile boolean first_play_A=0;//idem premiere
 volatile boolean first_play_B=0;//utiliser dans l'interuption pour ne pas switcher le premier load en mode song play
+// used to read the first pattern in a block
 boolean first_play_C=0;//idem utiliser pour lire le premier pattern dans un block
+// used to initialize one time after a stop like a MIDI stop command
 volatile boolean first_stop=0;//uriliser pour initaliser UNE FOIS apres un stop comme envoyer les messages MIDI STOP
 //----------------------------------------------------------------------------------
+// counter of the number of times pressed the play button
 byte button_play_count =0;//compteur du nombre d'appuie sur le bouton play
+// state of the play button
 boolean button_play=0;//etat du bouton play
+// state of the edit buttons
 byte edit_button_state, old_edit_button_state, debounce_edit_button_state;//etat des boutons edit
+// state of the two buttons of selections of the part of the pattern 0 (the one on the left) and 1 (the one on the right)
 boolean button_pattern_part=0;//etat des deux boutons de selections de la parti du pattern 0 celui de gauche 1 celui de droite
+// the count of the number of presses on the scale buttons from 0 to 3
 byte button_scale_count=0;//compte le nombre d'appuie sur le boutons scale de 0 a 3
+// state of the shift button / variabe that serves to check the edit buttons?
 boolean button_shift=0;// etat du bouton shift//variable qui serve a checker les buttons Edits
+// state of the encoder button
 boolean button_encoder=0;//etat du bouton de l'encoder
+// variable corresponds to the play and shift buttons
 boolean button_init=0;//variable qui correspond au bouton play et shift 
 boolean button_next=0;//bouton next en mode song
 boolean first_push_next=0;//flag de l'etat du permier appuie sur next
@@ -105,12 +122,15 @@ int step_button_state, old_step_button_state, debounce_step_button_state;//etat 
 
 //Variable du pattern
 //====================================================
+// allow to pass from the selected pattern to the next pattern by creating a buffer
 volatile boolean pattern_buffer=0;//permet de passer du pattern selectionner au prochain pattern en creant un buffer
+// a pattern is made of 16 instruments by 2 for the steps of 1-16 and 17-32 and of the two buffers from where the first array with 2
 unsigned int pattern[2][NBR_INST][2];//un pattern est constitue de 16 instruments fois 2 pour les pas de 1a16 et de 17a32 et de deux buffer d'ou le premier array avec 2
 unsigned int copy_pattern_buffer[NBR_INST][2];// buffer pour copier un pattern
 byte copy_pattern_nbr_step=0;//Buffer du nombre de step du pattern a copier
 byte copy_pattern_scale=0;//Buffer de la scale du pattern a copie
 byte selected_pattern=0;//variable du pattern selectionner de 0 a 15
+// variable of the next selected pattern needs to be different from the selected pattern to the initialization to be able to load the first pattern
 byte old_pattern_nbr=1;/*variable du prochain pattern selectionner doit etre different de selected_pattern a l'initialisation pour pouvoir loader le premeir
  pattern*/
 byte pattern_nbr=0;//numero du pattern de 0 a 255
