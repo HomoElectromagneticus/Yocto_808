@@ -5,9 +5,12 @@
 
 void Clear_Pattern(){
 
+  // check if the edit buttons in setup mode
   Check_Edit_Button_Setup();//check si les boutons edit en mode setup
 
+    // we read the buttons
     unsigned int reading = SR.Button_Step_Read();// on lit les boutons
+  // if they have changed, you record the time
   if(reading!=old_step_button_state){// si ils ont changer on enregistre le temps
     millis_debounce_step_button=millis();
   }
@@ -15,48 +18,62 @@ void Clear_Pattern(){
     if(reading!=step_button_state){
       step_button_state=reading;
       if(!button_shift){
+        // loop as many times as the step button becomes 16
         for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
           if (bitRead (step_button_state,i)){
+            // we return the value of the selected pattern
             //on retourne la valeur du pattern selectionner
             selected_pattern=i;
+            // flag for if the selected pattern has changed
             selected_pattern_changed=1;//flag que le pattern selectionner a change
             break;
           }
         }
       }
       else if (button_shift){
+        // loop as many times as the step button becomes 16
         for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
           if (bitRead (step_button_state,i)){
+            // if the shift button is pressed, you return the selected bank
             // si le bouton shift est appuyer on retourne la bank selectionner selectionner
             pattern_bank=i;
+            // flag for if the selected pattern has changed
             selected_pattern_changed=1;//flag que le pattern selectionner a change
             break;
           }
         }
       }
+      // the pattern number is equal to the selected pattern plus 16 times the bank or 255 pattern
       pattern_nbr = selected_pattern+(16*pattern_bank);//le numero du pattern est egal au pattern selectionner plus 16 fois la bank soit 255 pattern
     }
   }
   old_step_button_state=reading;
 
+  // if the selected pattern changed
   // si le pattern selectionner a changer
   if(old_pattern_nbr != pattern_nbr)
   {
     Load_Pattern();
+    // the selected pattern has not been cleared
     pattern_clear_ok=0;//le pattern selectionner n'a pas été clearer
   }
 
+  // if one presses the play button and if the pattern has not yet been cleared or has been edited or if we have just returned to the Clear_Pattern mode
   //Si on appuie sur play et que le pattern n'a pas necore etait clearer ou a ete editer ou qu'on vient de rentrer dans le mode Clear_Pattern
   if(  button_play && ( !pattern_clear_ok || selected_pattern_changed || first_time_clear_pattern ) ) 
   { 
+    // initialize the flog for entry for the mode Pattern_Clear
     first_time_clear_pattern=0;//initialise le flag d'entrée dans le mode pattern clear
     selected_pattern_changed=0;
     Clear_EEprom_Pattern();
     Chenillard();
+    // the selected pattern has been cleared
     pattern_clear_ok=1;//le pattern selectionner a ete clearer
     pattern_buffer=!pattern_buffer;
+    // one reload the cleared pattern
     Load_Pattern();//on recharge le pattern clearer
     //pattern_buffer=!pattern_buffer;
+    // the selected pattern is reset
     selected_pattern_changed=0;//le pattern selectionner est reseter
   }   
 }
