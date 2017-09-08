@@ -1,6 +1,7 @@
 void Check_Edit_Button_Pattern_Edit()
 {
 
+  // read the state of the buttons
   byte reading= SR.Button_SR_Read(2);//stock l'etat des boutons
   if (reading!=old_edit_button_state){
     millis_debounce_edit_button=millis();
@@ -17,7 +18,9 @@ void Check_Edit_Button_Pattern_Edit()
           button_play_count++;
           if(button_play_count==1){
             play=1;
+            // allow the first step to play
             first_play=1;//permet de jouer le premier pas (cf interrupt)
+            // second flag of play the first (???)
             first_play_A=1;//un deuxime flag de jouer le premier (cf interrupt)
           }
           else if (button_play_count==2){
@@ -31,9 +34,11 @@ void Check_Edit_Button_Pattern_Edit()
         //-------------------------
         //check bouton scale
       case 4:
+        // indicates that the scale of the pattern has changed
         pattern_scale_changed=1;//indique que la scale du pattern achanger
         button_scale_count++;
         if(button_scale_count==4) button_scale_count=0;
+        // send the scale corresponding in the variable pattern scale
         //envoi la scale correspondante dans la variable pattern scale
         switch (button_scale_count){
         case 0:
@@ -52,6 +57,7 @@ void Check_Edit_Button_Pattern_Edit()
         //Serial.println(button_scale_count,DEC);//DEBUGG
         break;
         //-------------------------
+        // check which part is selected - either 1-16 or 17-32
         //check quel part est selectionner soit 1a16 ou 17a32
       case 8:
         button_pattern_part=1;//section 17 a 32 selectionner
@@ -60,6 +66,7 @@ void Check_Edit_Button_Pattern_Edit()
         button_pattern_part=0;// section 1 a 16 selectionner
         break;
       }
+      // the two buttons 1-16 and 17-32 pressed
       //les deux boutons 1-16 et 17-32 appuyer
       if (edit_button_state==24){
         button_part_switch =!button_part_switch;
@@ -73,6 +80,7 @@ void Check_Edit_Button_Pattern_Edit()
       //Serial.println(button_init,DEC);//DEBUGG
     }
   }
+  // we retain the state of the buttons
   old_edit_button_state= reading;// on retient l'etat des boutons
 }
 
@@ -82,6 +90,7 @@ void Check_Edit_Button_Pattern()
   //-----------------------------------------------------
   if (sync_mode != MASTER)
   {
+    // check the status play in DIN_SYNC mode
     //Check la statut play en mdoe DIN_SYNC
     boolean din_start_state = PIND & (1<<5);
     if (din_start_state != old_din_start_state){
@@ -144,6 +153,7 @@ void Check_Edit_Button_Pattern()
         break;
       }
       if((mute_mode==1||roll_mode==1) && button_shift==1) {
+        // we come out of the mode with the shift button
         mute_mode=0;//on sort du mode mode avec le bouton shift 
         roll_mode=0;
       }
