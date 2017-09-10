@@ -8,44 +8,49 @@ void Update_Pattern_Led()
 
     if(play&&mute_mode){
       temp_step_led= (inst_step_buffer[step_count][pattern_buffer]*tempo_led_flag) | inst_mute;
-      // make blink the LED of MUTE MODE
+      // make the MUTE LED blink while in MUTE_MODE
       PORTC = (1*!tempo_led_flag)<<7;//fait clignoter la led de mute mode 
     }
     else if (play&&roll_mode){
       temp_step_led= (inst_step_buffer[step_count][pattern_buffer]*tempo_led_flag) | inst_roll;
-      // make blink the LED of ROLL MODE
+      // make the ROLL LED blink while in ROLL_MODE
       PORTC = (1*!tempo_led_flag)<<6;//fait clignoter la led de roll mode     
     }
     else if(!play&&mute_mode){     
       temp_step_led= inst_mute;
-      // make blink the LED of MUTE MODE
+      // make the MUTE LED blink while in MUTE_MODE
       PORTC = (1*!tempo_led_flag)<<7;//fait clignoter la led de mute mode 
     }
     else if (!play&&roll_mode){
       temp_step_led= inst_roll;
-      // make blink the LED of ROLL MODE
+      // make the ROLL LED blink while in ROLL_MODE
       PORTC = (1*!tempo_led_flag)<<6;//fait clignoter la led de mute mode
     }
     else if (!mute_mode){
 
       // variable which serves to calculate which LEDs will be on following the selected block
       unsigned int temp_led_block=0;//variable qui sert a calcul quel led seront allumer suivant le block selectionner
+      // variable which serves to calculate which LEDs will be on following the selected pattern
       unsigned int temp_led_pattern=0;//idem
 
       //-------------------------------------------------------------------
       // function that calculates which LEDs are on between the two chosen patterns
       //fonction qui calcul quelles leds sont allumer entre les deux pattern selectionner
+      // 1st case: the first pattern is smaller than the last pattern
       if(first_selected_pattern<last_selected_pattern){//1e cas le premier pattern est plus petit que le dernier
         temp_led_block = (((1<<last_selected_pattern)-1) | (1<<last_selected_pattern));
         temp_led_pattern = ((1<<first_selected_pattern)-1);
       }
+      // 2nd case: the first pattern is bigger than the last pattern
       else if (first_selected_pattern>last_selected_pattern){//2e cas le premier patern est plsu grand que le dernier
         temp_led_block = ((1<<last_selected_pattern)-1);
         temp_led_pattern = (((1<<first_selected_pattern)-1) | (1<<first_selected_pattern));
       }
       //PAS PLAY et PAS SHIFT----------------------------------------------
       if(!play && !button_shift){
+        // if there is no block, only one selected pattern
         if (last_selected_pattern==255){//s'il n'y a pas de block, un seul pattern selectionner
+          // if not play and no shift button, the LED of the selected pattern blinks with tempo
           temp_step_led=((1*tempo_led_flag<<selected_pattern));// | (selected_pattern_led));//si pas play et pas shift button la led du pattern selectionner clignote au tempo
         }
         else{
@@ -75,6 +80,7 @@ void Update_Pattern_Led()
         PORTC=B11111100;//allumer toutes leds pour indiquer qu'on selectionne la bank
       }
     }
+    // function which allows to update the scale LED with the pattern's scale
     //fonction qui permet d'updater la led de la scale en fonction de la scale du pattern
     switch (pattern_scale[pattern_buffer]){
     case 12:
@@ -97,6 +103,7 @@ void Update_Pattern_Led()
   //Mode Pattern Edit
   //-----------------------------------------
   if(selected_mode==PATTERN_EDIT){
+    // function which allows to update the scale LED with the pattern's scale
     //fonction qui permet d'updater la led de la scale en fonction de la scale du pattern
     switch (pattern_scale[pattern_buffer]){
     case 12:
@@ -123,6 +130,7 @@ void Update_Pattern_Led()
       }
     }  
 
+    // update the LEDs from the edited part following the buttons
     PORTC = (1<<button_scale_count+2) + (1<<!button_pattern_part+6);//Update les led de la parti edit suivant les boutons.
 
     if(play){
