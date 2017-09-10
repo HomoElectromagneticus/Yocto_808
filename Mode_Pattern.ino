@@ -69,10 +69,14 @@ void Mode_Pattern(){
         }
         //NORMAL MODE----------------------------------------------------------------------------------------------------
         else if (!mute_mode && !roll_mode){
+          // shift, therefor bank select?
           //Shift donc bank select
+          // if the shift button is pressed
           if (button_shift){//si bouton shift appuyer
+            // loop as many time as the step button becomes 16
             for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
               if (bitRead (step_button_state,i)){
+                // if the shift button is pressed, we retun to the selected bank
                 // si le bouton shift est appuyer on retourne la bank selectionner selectionner
                 pattern_bank=i;
                 selected_pattern_changed=1;//flag que le pattern selectionner a change
@@ -80,23 +84,34 @@ void Mode_Pattern(){
               }
             }
           }
+          // not shift, therefore pattern select
           //Pas shift donc pattern select
           else{
+            // loop as many time as the step button becomes 16
             for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
+              // if a button is pressed
               if (step_button_just_pressed[i]){//si un bouton est papuyer
+                // increment the counter of the number of pushed buttons
                 pushed_button_step_count++;//incrementer le compteur du nombre de bouton appuyer
+                // if it is the first pushed button
                 if(pushed_button_step_count==1){//si c'est le premier bouton appuyer
+                  // we record like the first selected pattern
                   first_selected_pattern=i;//on enregistre comme le premier pattern selectionner
                   selected_pattern_changed=1;//flag que le pattern selectionner a change
+                  // we initialize the second selected pattern
                   last_selected_pattern=255; //on initialise le dernier pattern selectionne         
                 }
+                // if the second button is pressed
                 else if (pushed_button_step_count==2){//c'est le deuxieme bouton appuyer
+                  // we record like the second selected pattern
                   last_selected_pattern=i;//on enregistre comme le dernier pattern selectionner
+                  // we initialize the counter of the number of pushed buttons
                   pushed_button_step_count=0;//on initialise le compteur du nombre de bouton appuyer
                   break;
                 }    
               }
             }
+            // this function allows the variable "selected_pattern" to always store the smallest selected pattern
             //Cette fonction permet que le variable selected_pattern stock toujours le plus petit pattern selectionner
             if ((first_selected_pattern > last_selected_pattern)&& (last_selected_pattern!=255)){//si le premier pattern selectionner est plus grand que le dernier alors le pattern selectionner est egal au dernier pattern
               low_selected_pattern=last_selected_pattern;
