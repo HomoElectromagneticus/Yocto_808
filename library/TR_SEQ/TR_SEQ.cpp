@@ -148,7 +148,7 @@ void TR_SEQ:: Inst_Send(uint16_t data)
 }
 byte TR_SEQ::Led_SR_Read (byte SR_num)
 { 
-  // function that resends the state of the octet to the selected shift register
+  // function that returns the state of the octet to the selected shift register
   // Fonction qui renvoi l'état de l'octet du SR sélectionné
   return _SR[SR_num];
 }
@@ -166,7 +166,7 @@ void TR_SEQ::Led_Pin_Write (byte Pin_num, byte flag)
     
 byte TR_SEQ::Button_SR_Read (byte SR_num)
 {
-  // function that resends in the form of octets the state of the buttons of the
+  // function that returns in the form of octets the state of the buttons of the
   // selected shift register
   // Fonction qui renvoie sous forme d'octet l'état des boutons du SR sélectionné
   digitalWrite(_latchPinIn,1);
