@@ -1,0 +1,20 @@
+##############################################################
+
+yocto_opt.name=YOCTO Boot 16MHz
+yocto_opt.upload.protocol=stk500
+yocto_opt.upload.maximum_size=130048
+yocto_opt.upload.speed=19200
+yocto_opt.upload.using=arduino:arduinoisp
+yocto_opt.bootloader.low_fuses=0xd6
+yocto_opt.bootloader.high_fuses=0xdc
+yocto_opt.bootloader.extended_fuses=0xfd
+yocto_opt.bootloader.path=yocto
+yocto_opt.bootloader.file=BootYocto.hex
+yocto_opt.bootloader.unlock_bits=0x3F
+yocto_opt.bootloader.lock_bits=0x0F
+yocto_opt.build.mcu=atmega1284p
+yocto_opt.build.f_cpu=16000000L
+#yocto_opt.build.core=arduino:arduino
+yocto_opt.build.core=standard
+yocto_opt.build.variant=standard
+
