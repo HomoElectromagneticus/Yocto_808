@@ -1,4 +1,6 @@
 //===========================================================================
+// here we have all connected all the initializations of the differend interrups
+// for the three modes
 //Ici on a toutes lies initialisation de differnete interruption des 3 modes
 //
 

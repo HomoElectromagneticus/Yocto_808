@@ -141,7 +141,7 @@ void loop(){
       Mode_Synchro(2);//mode master synchro
       if(play){
         play=0;
-        MIDI_Send(0xfc);//envoi un stop midi
+        MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
         PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
         button_play_count=0;
       }
@@ -149,7 +149,7 @@ void loop(){
 
     Check_Edit_Button_Setup();
     Play_Version();
-    Initialize_EEprom();//initialise les 256 patterns
+    Initialize_EEprom();//initialise les 256 patterns (init. the 256 patterns)
     break;
 
     //==================================================
@@ -159,10 +159,11 @@ void loop(){
       old_selected_mode=CLEAR_PATTERN;
       Disconnect_Callback();
       Mode_Synchro(2);//mode master synchro
+	  // flag that we have just reentered the "clear pattern" mode
       first_time_clear_pattern=1;//flag que l'on vient de rentrée dans le mode clear pattern
       if(play){
         play=0;
-        MIDI_Send(0xfc);//envoi un stop midi
+        MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
         PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
         button_play_count=0;
       }
@@ -192,7 +193,7 @@ void loop(){
       first_time_copy_pattern=1;//flag que l'on vient de rentrée dans le mode copy pattern
       if(play){
         play=0;
-        MIDI_Send(0xfc);//envoi un stop midi
+        MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
         PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
         button_play_count=0;
       }
@@ -247,7 +248,7 @@ void loop(){
       Mode_Synchro(0);//mode master synchro
       if(play){
         play=0;
-        MIDI_Send(0xfc);//envoi un stop midi
+        MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
         PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
         button_play_count=0;
       }
@@ -273,7 +274,7 @@ void loop(){
       Mode_Synchro(0);//mode master synchro
       if(play){
         play=0;
-        MIDI_Send(0xfc);//envoi un stop midi
+        MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
         PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
         button_play_count=0;
       }
@@ -299,7 +300,7 @@ void loop(){
       Mode_Synchro(1);//mode master synchro
       if(play){
         play=0;
-        MIDI_Send(0xfc);//envoi un stop midi
+        MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
         PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
         button_play_count=0;
       }

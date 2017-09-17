@@ -1,3 +1,4 @@
+// Pin of the tempo encoder
 //Pin de l'encoder des BPM
 #define ENC_A    30
 #define ENC_B    31
@@ -14,15 +15,16 @@ byte tap_button_shift=0;
 uint16_t TapTempoBpm=TEMPO_MIN;
 
 
+// function that checks the encoder and returns the time of the timer
 //Fonction qui check l'encoder et renvoi le temp dans le timer//
 void Check_BPM()
 {
   //Local Variables
   int8_t tmpdata;
-  //Appel la fonction qui lit l'encoder    
+  //Appel la fonction qui lit l'encoder (call the function to read the encoder)
   tmpdata = Read_Encoder();
 if(!roll_mode){
-  //l'encoder a t il bouger
+  //l'encoder a t il bouger (has the encoder moved?)
   if(tmpdata) 
   {
 
@@ -43,19 +45,21 @@ void Check_Roll_Scale()
 {
   //Local Variables
   int8_t tmp_data;
-  //Appel la fonction qui lit l'encoder    
+  //Appel la fonction qui lit l'encoder (call the function to read the encoder)
   tmp_data = Read_Encoder();
 
-  //l'encoder a t il bouger
+  //l'encoder a t il bouger (has the encoder moved?)
   if(tmp_data) 
   {
     if(roll_mode){
       temp_roll_scale -=tmp_data;
       temp_roll_scale=constrain(temp_roll_scale,1,30);
+	  // if we are in "PATTERN_MIDI_MASTER"
       if(selected_mode==0){//si on est en PATTERN_MIDI_MASTER
       roll_pointer=map(temp_roll_scale,0,30,0,3);
       }
       else{
+		// we map only between 0 and 2 in slave mode
         roll_pointer=map(temp_roll_scale,0,30,0,2);//on map que entre 0 et 2 en mode slave
       }
       Serial.println(temp_roll_scale);
