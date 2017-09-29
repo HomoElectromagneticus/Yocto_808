@@ -1,7 +1,7 @@
 # Yocto_808
 Firmware for a TR-808 Clone by E-Licktronic (http://www.e-licktronic.com/en/content/25-yocto-tr808-clone-tr-808)
 
-# Burning the bootloader onto the Yocto's microprocessor
+# Burning the bootloader onto the Yocto's microprocessor (Using Arduino IDE v1.0.6)
 A useful guide to setup an Arduino as an In-System Programmer is available at the e-licktronic forum (http://www.e-licktronic.com/forum/viewtopic.php?f=17&t=436)
 
 # Writing firmware to the Yocto's microprocessor with an Arduino
