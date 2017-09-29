@@ -163,9 +163,13 @@ void Mode_Pattern(){
             // flag for if the pattern was changed since last save
             selected_pattern_edited_saved=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
             //pattern_in_midi_buffer=0;
-            // the pattern equals the value of buttons pressed
-            pattern[pattern_buffer][selected_inst][button_pattern_part] ^= step_button_state ;//le pattern egale la valeur des boutons appuyer 
-            //Serial.println(pattern[pattern_buffer][selected_inst][button_pattern_part],BIN);
+            // the pattern equals the XOR'd value of buttons pressed, but only 
+            // if more buttons have been pressed than the last time there was a
+            // change in the step button state
+            if (step_button_state >= last_step_button_state){
+              pattern[pattern_buffer][selected_inst][button_pattern_part] ^= (step_button_state ^ last_step_button_state);
+            }
+            last_step_button_state = step_button_state;
           }
         }
         else if (!play){//si pas en play

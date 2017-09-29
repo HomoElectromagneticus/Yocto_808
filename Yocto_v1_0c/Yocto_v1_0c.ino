@@ -116,9 +116,10 @@ boolean  old_din_start_state=2;//variable qui sert achecker le changement de sta
 
 boolean button_part_switch=1;//variable des deux boutons part appuyer initialise a 1 comme ça au demmarrage les pattern switch automatiquement
 
+// variables which serve to check the step buttons
 //variable qui serve a checker les boutons steps
 //====================================================
-int step_button_state, old_step_button_state, debounce_step_button_state;//etat des boutons step
+int step_button_state, last_step_button_state=0, old_step_button_state, debounce_step_button_state;//state of the step buttons
 
 //Variable du pattern
 //====================================================
