@@ -157,12 +157,11 @@ void Mode_Pattern(){
             }
           }
           // if shift button not pressed, we return the value of buttons in the edited pattern
-          else{// sinon bouton shift pas appuyer on retourne la valeur des boutons dans dans le pattern editer
+          else{
             // flag for if the pattern was changed since last save
-            selected_pattern_edited=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
-            // flag for if the pattern was changed since last save
-            selected_pattern_edited_saved=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
-            //pattern_in_midi_buffer=0;
+            selected_pattern_edited=1;
+            // flag for if the pattern was changed and if saved
+            selected_pattern_edited_saved=1;
             // the pattern equals the XOR'd value of buttons pressed, but only 
             // if more buttons have been pressed than the last time there was a
             // change in the step button state
