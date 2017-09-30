@@ -162,12 +162,9 @@ void Mode_Pattern(){
             selected_pattern_edited=1;
             // flag for if the pattern was changed and if saved
             selected_pattern_edited_saved=1;
-            // the pattern equals the XOR'd value of buttons pressed, but only 
-            // if more buttons have been pressed than the last time there was a
-            // change in the step button state
-            if (step_button_state >= last_step_button_state){
-              pattern[pattern_buffer][selected_inst][button_pattern_part] ^= (step_button_state ^ last_step_button_state);
-            }
+            // the pattern should only change on a button's state change from
+            // "not pressed" to "pressed." other cases must be ignored.
+            pattern[pattern_buffer][selected_inst][button_pattern_part] ^= ((step_button_state ^ last_step_button_state) & step_button_state);
             last_step_button_state = step_button_state;
           }
         }
