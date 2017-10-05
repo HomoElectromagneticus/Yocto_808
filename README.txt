@@ -26,6 +26,8 @@ In Wire.h:
   "#define BUFFER_LENGTH 128" instead of 32
 See (http://www.e-licktronic.com/forum/viewtopic.php?f=17&t=180&p=3716&hilit=libraries#p3716)
 
+# When does one have to use avrdude.conf.addendum?
+If your Yocto has an ATMEGA1284 instead of an ATMEGA1284P, then you must apply the addendum text to your avrdude.conf.
 
 # Disclaimer
 I am not affiliated in any way with e-licktronic. Use this code at your own risk!
