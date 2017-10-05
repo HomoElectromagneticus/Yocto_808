@@ -24,6 +24,7 @@ In twi.h:
   "#define TWI_BUFFER_LENGTH 128" instead of 32 
 In Wire.h:
   "#define BUFFER_LENGTH 128" instead of 32
+See (http://www.e-licktronic.com/forum/viewtopic.php?f=17&t=180&p=3716&hilit=libraries#p3716)
 
 
 # Disclaimer
