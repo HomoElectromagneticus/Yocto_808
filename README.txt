@@ -18,5 +18,13 @@ A useful guide to setup an Arduino as an In-System Programmer is available at th
 3. Open your favorite serial monitor software and monitor the COM point.
 4. Set the software to 115200 baud.
 
+# Hey, playing with the firmware screwed up the patterns on the CB, CY, OH, CH...
+You probably didn't increase the buffer size in the Arduino twi and Wire libraries. 
+In twi.h:
+  "#define TWI_BUFFER_LENGTH 128" instead of 32 
+In Wire.h:
+  "#define BUFFER_LENGTH 128" instead of 32
+
+
 # Disclaimer
 I am not affiliated in any way with e-licktronic. Use this code at your own risk!
