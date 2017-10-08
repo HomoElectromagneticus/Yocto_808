@@ -5,7 +5,8 @@ Firmware for a TR-808 Clone by E-Licktronic (http://www.e-licktronic.com/en/cont
 A useful guide to setup an Arduino as an In-System Programmer is available at the e-licktronic forum (http://www.e-licktronic.com/forum/viewtopic.php?f=17&t=436)
 
 # Writing firmware to the Yocto's microprocessor with an Arduino
-1. Update your avrdude.conf file with what's in the "avrdude.conf.addendum" file.
+1. Find out what micro you have - ATMEGA1284 or ATMEGA1284P? If you have the ATMEGA1284, 
+   update your avrdude.conf file with what's in the "avrdude.conf.addendum" file (see note below).
 2. Burn the bootloader following the above guide from e-licktronic.
 3. Make sure the "TX" connection on the Arduino is not connected to anything.
 4. Make sure that GND and RST are not connected.
