@@ -1,5 +1,7 @@
 
 /* Yocto clone TR808 Sequencer Firmware
+*
+*  v1.0d: -Fixed pattern edit mode bug where pushing more than one button at time did unexpected things
 *  
 *  v1.0c: -Fix BUG synchro Midi Slave
 *
