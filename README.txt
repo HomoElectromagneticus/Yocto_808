@@ -6,7 +6,7 @@ A useful guide to setup an Arduino as an In-System Programmer is available at th
 
 # Writing firmware to the Yocto's microprocessor with an Arduino
 1. Find out what micro you have - ATMEGA1284 or ATMEGA1284P? If you have the ATMEGA1284, 
-   update your avrdude.conf file with what's in the "avrdude.conf.addendum" file (see note below).
+   update your avrdude.conf file with what's in the "avrdude.conf.addendum" file.
 2. Burn the bootloader following the above guide from e-licktronic.
 3. Make sure the "TX" connection on the Arduino is not connected to anything.
 4. Make sure that GND and RST are not connected.
@@ -26,9 +26,6 @@ In twi.h:
 In Wire.h:
   "#define BUFFER_LENGTH 128" instead of 32
 See (http://www.e-licktronic.com/forum/viewtopic.php?f=17&t=180&p=3716&hilit=libraries#p3716)
-
-# When does one have to use avrdude.conf.addendum?
-If your Yocto has an ATMEGA1284 instead of an ATMEGA1284P, then you must apply the addendum text to your avrdude.conf.
 
 # Disclaimer
 I am not affiliated in any way with e-licktronic. Use this code at your own risk!
