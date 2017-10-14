@@ -1,7 +1,7 @@
 /*!
  *  @file		MIDI.h
  *  Project		MIDI Library
- *	@brief		MIDI Library for the Arduino
+ *	@brief		MIDI Library for the Arduino - With Teensy support
  *	Version		3.2
  *  @author		Francois Best 
  *	@date		24/02/11
@@ -27,10 +27,13 @@
     ###############################################################
  */
 
+#define TEENSY_SUPPORT          0           // Set this to 1 to enable Teensyduino support.
+#define TEENSY_USB_TO_MIDI      0           // Set this to 1 to forward incoming messages on the USB MIDI to the UART.
+#define TEENSY_MIDI_TO_USB      0           // Set this to 1 to forward incoming messages on the UART to the USB MIDI.
 
 #define COMPILE_MIDI_IN         1           // Set this setting to 1 to use the MIDI input.
 #define COMPILE_MIDI_OUT        1           // Set this setting to 1 to use the MIDI output. 
-#define COMPILE_MIDI_THRU       1           // Set this setting to 1 to use the MIDI Soft Thru feature
+#define COMPILE_MIDI_THRU       0           // Set this setting to 1 to use the MIDI Soft Thru feature
                                             // Please note that the Thru will work only when both COMPILE_MIDI_IN and COMPILE_MIDI_OUT set to 1.
 
 
@@ -46,7 +49,7 @@
 #define USE_CALLBACKS           1           // Set this to 1 if you want to use callback handlers (to bind your functions to the library).
                                             // To use the callbacks, you need to have COMPILE_MIDI_IN set to 1
 
-// #define USE_1BYTE_PARSING       1           // Each call to MIDI.read will only parse one byte (might be faster).
+#define USE_1BYTE_PARSING       0           // Each call to MIDI.read will only parse one byte (might be faster).
 
 
 // END OF CONFIGURATION AREA 
@@ -178,8 +181,6 @@ public:
 	
 	bool read();
 	bool read(const byte Channel);
-
-	void resetall();
 	
 	// Getters
 	kMIDIType getType() const;
