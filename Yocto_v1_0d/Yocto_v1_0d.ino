@@ -35,6 +35,8 @@
 #define OH_MIDI_NOTE 46  //A#2
 #define CH_MIDI_NOTE 42  //F#2
 
+#define MIDI_ACTIVITY_LED (1<<7)
+
 #define DEBUGG 0 // permet de debugger le programme via le moniteur serie d'arduino
 #define DEBOUNCE 5 // debounce pour eviter les rebonds des boutons
 
@@ -231,6 +233,8 @@ byte selected_channel;//channel MIDI In
 boolean selected_channel_changed=0;//flag que le channel selectionner a changer
 int inst_midi_note[16];//Array des note midi de chaque instruments
 boolean inst_midi_note_edited=0;//flag que les note midi ont changé
+unsigned int midi_led_flash_count = 0; // To flash the LED on MIDI activity
+unsigned int midi_trig_pulse_count = 0; // To create TRIG1/2/3 pulse
 
 
 unsigned long timer_off=0;
