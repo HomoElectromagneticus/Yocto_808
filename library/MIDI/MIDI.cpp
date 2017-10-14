@@ -14,7 +14,21 @@
 #include "HardwareSerial.h"
 
 
-/*! \brief Main instance (the class comes pre-instantiated). */
+#if TEENSY_SUPPORT && defined(CORE_TEENSY)
+/* By default, no Serial instance is loaded.
+ Create one for the library and bind it.
+ */
+HardwareSerial UARTSerial;
+
+// Now make sure we use the right one:
+#ifdef USE_SERIAL_PORT
+#undef USE_SERIAL_PORT
+#define USE_SERIAL_PORT UARTSerial
+#endif
+
+#endif // TEENSY_SUPPORT
+
+/*! Main instance (the class comes pre-instantiated). */
 MIDI_Class MIDI;
 
 
@@ -69,7 +83,7 @@ void MIDI_Class::begin(const byte inChannel)
 {
 	
 	// Initialise the Serial port
-	Serial1.begin(MIDI_BAUDRATE);
+	USE_SERIAL_PORT.begin(MIDI_BAUDRATE);
 	
 	
 #if COMPILE_MIDI_OUT
@@ -159,17 +173,17 @@ void MIDI_Class::send(kMIDIType type,
 		if (mRunningStatus_TX != statusbyte) {
 			// New message, memorise and send header
 			mRunningStatus_TX = statusbyte;
-			Serial1.write(mRunningStatus_TX);
+			USE_SERIAL_PORT.write(mRunningStatus_TX);
 		}
 #else
 		// Don't care about running status, send the Control byte.
-		Serial1.write(statusbyte);
+		USE_SERIAL_PORT.write(statusbyte);
 #endif
 		
 		// Then send data
-		Serial1.write(data1);
+		USE_SERIAL_PORT.write(data1);
 		if (type != ProgramChange && type != AfterTouchChannel) {
-			Serial1.write(data2);
+			USE_SERIAL_PORT.write(data2);
 		}
 		return;
 	}
@@ -322,22 +336,22 @@ void MIDI_Class::sendSysEx(int length,
 	
 	if (ArrayContainsBoundaries == false) {
 		
-		Serial1.write(0xF0);
+		USE_SERIAL_PORT.write(0xF0);
 		
 		for (int i=0;i<length;++i) {
 			
-			Serial1.write(array[i]);
+			USE_SERIAL_PORT.write(array[i]);
 			
 		}
 		
-		Serial1.write(0xF7);
+		USE_SERIAL_PORT.write(0xF7);
 		
 	}
 	else {
 		
 		for (int i=0;i<length;++i) {
 			
-			Serial1.write(array[i]);
+			USE_SERIAL_PORT.write(array[i]);
 			
 		}
 		
@@ -385,8 +399,8 @@ void MIDI_Class::sendTimeCodeQuarterFrame(byte TypeNibble, byte ValuesNibble)
 void MIDI_Class::sendTimeCodeQuarterFrame(byte data)
 {
 	
-	Serial1.write((byte)TimeCodeQuarterFrame);
-	Serial1.write(data);
+	USE_SERIAL_PORT.write((byte)TimeCodeQuarterFrame);
+	USE_SERIAL_PORT.write(data);
 
 #if USE_RUNNING_STATUS
 	mRunningStatus_TX = InvalidType;
@@ -401,9 +415,9 @@ void MIDI_Class::sendTimeCodeQuarterFrame(byte data)
 void MIDI_Class::sendSongPosition(unsigned int Beats)
 {
 	
-	Serial1.write((byte)SongPosition);
-	Serial1.write(Beats & 0x7F);
-	Serial1.write((Beats >> 7) & 0x7F);
+	USE_SERIAL_PORT.write((byte)SongPosition);
+	USE_SERIAL_PORT.write(Beats & 0x7F);
+	USE_SERIAL_PORT.write((Beats >> 7) & 0x7F);
 
 #if USE_RUNNING_STATUS
 	mRunningStatus_TX = InvalidType;
@@ -416,8 +430,8 @@ void MIDI_Class::sendSongPosition(unsigned int Beats)
 void MIDI_Class::sendSongSelect(byte SongNumber)
 {
 	
-	Serial1.write((byte)SongSelect);
-	Serial1.write(SongNumber & 0x7F);
+	USE_SERIAL_PORT.write((byte)SongSelect);
+	USE_SERIAL_PORT.write(SongNumber & 0x7F);
 
 #if USE_RUNNING_STATUS
 	mRunningStatus_TX = InvalidType;
@@ -442,7 +456,7 @@ void MIDI_Class::sendRealTime(kMIDIType Type)
 		case Continue:
 		case ActiveSensing:
 		case SystemReset:
-			Serial1.write((byte)Type);
+			USE_SERIAL_PORT.write((byte)Type);
 			break;
 		default:
 			// Invalid Real Time marker
@@ -469,14 +483,6 @@ void MIDI_Class::sendRealTime(kMIDIType Type)
  A valid message is a message that matches the input channel. \n\n
  If the Thru is enabled and the messages matches the filter, it is sent back on the MIDI output.
  */
- 
- 
-void MIDI_Class::resetall()
-{
-	while (  Serial1.available() ) Serial1.read();
-	reset_input_attributes();
-}
-
 bool MIDI_Class::read()
 {
 	
@@ -492,13 +498,12 @@ bool MIDI_Class::read(const byte inChannel)
 	if (inChannel >= MIDI_CHANNEL_OFF) return false; // MIDI Input disabled.
 	
 	if (parse(inChannel)) {
-
+		
+		if (input_filter(inChannel)) {
+			
 #if (COMPILE_MIDI_OUT && COMPILE_MIDI_THRU)
 			thru_filter(inChannel);
 #endif
-					
-		if (input_filter(inChannel)) {
-			
 			
 #if USE_CALLBACKS
 			launchCallback();
@@ -518,7 +523,7 @@ bool MIDI_Class::read(const byte inChannel)
 bool MIDI_Class::parse(byte inChannel)
 { 
 	
-	const int bytes_available = Serial1.available();
+	const int bytes_available = USE_SERIAL_PORT.available();
 	
 	if (bytes_available <= 0) {
 		// No data available.
@@ -527,7 +532,7 @@ bool MIDI_Class::parse(byte inChannel)
 	
 	// If the buffer is full -> Don't Panic! Call the Vogons to destroy it.
 	if (bytes_available == 128) {
-		Serial1.flush();
+		USE_SERIAL_PORT.flush();
 	}	
 	else {
 		
@@ -540,7 +545,7 @@ bool MIDI_Class::parse(byte inChannel)
 		 */
 		
 		
-		const byte extracted = Serial1.read();
+		const byte extracted = USE_SERIAL_PORT.read();
 		
 		if (mPendingMessageIndex == 0) { // Start a new pending message
 			mPendingMessage[0] = extracted;
@@ -1083,6 +1088,11 @@ void MIDI_Class::thru_filter(byte inChannel)
 	 - Channel messages are passed to the output whether their channel is matching the input channel and the filter setting
 	 
 	 */
+	
+#if TEENSY_SUPPORT && TEENSY_MIDI_TO_USB
+	// Pass the message to the USB side if enabled
+	
+#endif
 	
 	// If the feature is disabled, don't do anything.
 	if (!mThruActivated || (mThruFilterMode == Off)) return;
