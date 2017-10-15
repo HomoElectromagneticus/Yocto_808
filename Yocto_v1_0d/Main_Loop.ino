@@ -353,7 +353,6 @@ void loop(){
       Mode_Synchro(2);
 
       MIDI.setHandleNoteOn(Handle_NoteOn);  // Callback NoteON
-      MIDI.setHandleNoteOff(Handle_NoteOff);  // PCallback NoteOFF
       MIDI.setInputChannel(selected_channel+1);//initialise le channel midi
       if(play){
         play=0;
@@ -370,38 +369,7 @@ void loop(){
       Load_Midi_Note();
     } 
 
-    MIDI.read();
-    boolean indic = false;
-
-    inst_midi_buffer=0;
-    for (int ct=0;ct<16;ct++) 
-    {
-      if ( noteOnOff[ct]==1 ) 
-      { 
-        bitSet(inst_midi_buffer,ct);
-        indic = true;
-        noteOnOff[ct]=0;
-      }
-    }
-
-    if (indic)
-    {
-      SR.ShiftOut_Update(temp_step_led,inst_midi_buffer);
-     // Send_Trig_Out_Midi();
-     //Serial.println(PINB,BIN);
-      PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
-      delayMicroseconds(10); 
-      PORTB &= ~(1<<2);
-      Send_Trig_Out_Midi();
-    } 
-    else
-    {
-      delayMicroseconds(1000); 
-      SR.ShiftOut_Update(temp_step_led,0);
-      Reset_Trig_Out();
-    }  
-
-
+    // Check user interface
     Check_Edit_Button_Setup();
     Check_Midi_Channel();
     if (selected_channel_changed){
@@ -411,6 +379,58 @@ void loop(){
       selected_channel_changed=0;
     }
     Save_Midi_Note();//sauve le note midi si elles ont changé
+
+    if (midi_led_flash_count > 0) {
+      --midi_led_flash_count;
+
+      if (midi_led_flash_count == 0) {
+        PORTC &= ~MIDI_ACTIVITY_LED;
+      }
+    }
+
+    if (midi_trig_pulse_count > 0) {
+      --midi_trig_pulse_count;
+
+      if (midi_trig_pulse_count == 0) {
+        Reset_Trig_Out();
+        SR.ShiftOut_Update(temp_step_led,0);
+      }
+    }
+
+    // Check for MIDI data
+    inst_midi_buffer=0;
+    MIDI.read();
+    if (inst_midi_buffer == 0) {
+      // Nothing we can do with the MIDI data, go to next loop.
+      return;
+    }
+
+    // The order of what follows is important.
+    // 
+    // 1. Set pins HIGH for the instrument(s) we want to trigger.
+    // 2. Send a 10 microsecond pulse to the TRIG_CPU input of the Accent circuit
+    // 3. The TRIG_CPU pulse triggers a monostable  in the Accent circuit which creates a 1
+    //    millisecond (inverse) pulse.
+    // 4. After the 1 ms Accent pulse is done, return the instrument trigger pins to LOW.
+    // 
+    // It is OK if step 4 is 'late' but if it is too short it affects the
+    // envelopes of the instruments. The instrument trigger must remain high
+    // until the monostable pulse inside the Accent circuit is done.
+    //
+    SR.ShiftOut_Update(temp_step_led,inst_midi_buffer);
+
+    PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+    delayMicroseconds(10);
+    PORTB &= ~(1<<2);
+
+    Send_Trig_Out_Midi();
+
+    // This number is tuned to the speed of the main loop. It needs to be
+    // more than 1ms to give Accent monostable enough time to create its 1ms
+    // pulse.
+    midi_trig_pulse_count = 7;
+
+
     break;
 
   }

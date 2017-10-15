@@ -44,87 +44,41 @@
 
 void Handle_NoteOn(byte channel, byte pitch, byte velocity)
 {
-  //allume led mute pour signaler une acitvité en MIDI IN.
-  PORTC =(1<<7);
-  delayMicroseconds(300);
-  PORTC=0;
-  /*  
-   trigg_ok=1;//flag que les inst doivent etre trigger
-   count=0;//initialise les compteur pour decaler le trig au cas ou on recois une autre note midi
-   flag_note_on=0;//flag qu'on rentre dans la fonction callback NoteON
-   */
+  if (velocity == 0) {
+    return;
+  }
+
+  if (midi_led_flash_count == 0) {
+    PORTC |= MIDI_ACTIVITY_LED;
+  }
+  midi_led_flash_count = 10;
+
   //on enregistre le numero du noteOn dans l'instrument selectionné
   if(button_shift){
     inst_midi_note[selected_inst]=pitch;
     inst_midi_note_edited=1;
   }
 
-  if((pitch==inst_midi_note[0])||(pitch==inst_midi_note[1])||(pitch==inst_midi_note[2])||(pitch==inst_midi_note[3])
-    ||(pitch==inst_midi_note[4])||(pitch==inst_midi_note[5])||(pitch==inst_midi_note[6])||(pitch==inst_midi_note[7])
-    ||(pitch==inst_midi_note[8])||(pitch==inst_midi_note[9])||(pitch==inst_midi_note[10])||(pitch==inst_midi_note[11])
-    ||(pitch==inst_midi_note[12])||(pitch==inst_midi_note[13])||(pitch==inst_midi_note[14])||(pitch==inst_midi_note[15])){
+  if (pitch == inst_midi_note[0]) bitSet(inst_midi_buffer, 0);
+  if (pitch == inst_midi_note[1]) bitSet(inst_midi_buffer, 1);
+  if (pitch == inst_midi_note[2]) bitSet(inst_midi_buffer, 2);
+  if (pitch == inst_midi_note[3]) bitSet(inst_midi_buffer, 3);
+  if (pitch == inst_midi_note[4]) bitSet(inst_midi_buffer, 4);
+  if (pitch == inst_midi_note[5]) bitSet(inst_midi_buffer, 5);
+  if (pitch == inst_midi_note[6]) bitSet(inst_midi_buffer, 6);
+  if (pitch == inst_midi_note[7]) bitSet(inst_midi_buffer, 7);
+  if (pitch == inst_midi_note[8]) bitSet(inst_midi_buffer, 8);
+  if (pitch == inst_midi_note[9]) bitSet(inst_midi_buffer, 9);
+  if (pitch == inst_midi_note[10]) bitSet(inst_midi_buffer, 10);
+  if (pitch == inst_midi_note[11]) bitSet(inst_midi_buffer, 11);
+  if (pitch == inst_midi_note[12]) bitSet(inst_midi_buffer, 12);
+  if (pitch == inst_midi_note[13]) bitSet(inst_midi_buffer, 13);
+  if (pitch == inst_midi_note[14]) bitSet(inst_midi_buffer, 14);
+  if (pitch == inst_midi_note[15]) bitSet(inst_midi_buffer, 15);
 
-    if (velocity >= 100){
-      noteOnOff[0]=1;
-      bitSet(inst_midi_buffer,0);//si la velocity est superieur ou egal a 100 on active l'accent
-    }
-    else if (velocity==0){
-      Handle_NoteOff(channel, pitch, 0);
-      return;
-    }
-
-    for (byte i=0; i<16;i++){
-      if(pitch == inst_midi_note[i]){
-        noteOnOff[i]=1;
-        break;
-      }
-    }
-    /*  switch (pitch){
-     case inst_midi_note[0]:
-     noteOnOff[1]=1;
-     break;
-     case inst_midi_note[1]:
-     noteOnOff[2]=1;
-     break;
-     case inst_midi_note[2]:
-     noteOnOff[3]=1;
-     break;
-     case inst_midi_note[3]:
-     noteOnOff[4]=1;
-     break;
-     case inst_midi_note[4]:
-     noteOnOff[5]=1;
-     break;
-     case inst_midi_note[5]:
-     noteOnOff[6]=1;
-     break;
-     case inst_midi_note[6]:
-     noteOnOff[7]=1;
-     break;
-     case inst_midi_note[7]:
-     noteOnOff[8]=1;
-     break;
-     case inst_midi_note[8]:
-     noteOnOff[9]=1;
-     break;
-     case inst_midi_note[9]:
-     noteOnOff[10]=1;
-     break;
-     case inst_midi_note[10]:
-     noteOnOff[11]=1;
-     break;
-     
-     }*/
-    /*    
-     if ( timerOff == 0 )
-     {
-     PORTB |= (1<<2);
-     }
-     SR.ShiftOut_Update(temp_step_led,inst_midi_buffer);
-     timerOff = micros()+2000;
-     Handle_NoteOff(channel
-     */
-
+  if (inst_midi_buffer > 0 && velocity >= 100) {
+    // Enable accent
+    bitSet(inst_midi_buffer,0);
   }
 }
 
@@ -282,14 +236,10 @@ void Disconnect_Callback()
    */
   PORTC&= ~(B11111100);//clear les edits leds dans ce mode 
   SR.Led_Step_Write(0);//tous les leds Step Off
-  MIDI.disconnectCallbackFromType(NoteOff);
   MIDI.disconnectCallbackFromType(NoteOn);
   MIDI.disconnectCallbackFromType(Clock);
   MIDI.disconnectCallbackFromType(Start);
   MIDI.disconnectCallbackFromType(Stop);
 }
-
-
-
 
 
