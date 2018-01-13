@@ -69,7 +69,7 @@ void TR_SEQ::Led_All_On()
 {
   // turn on all the LEDs
   //Allume toutes les Leds
-  PORTB &= (0<<4);          //latchPinOut 12 low
+  PORTB &= ~(1<<4);          //latchPinOut 12 low
   shiftOut_SRIO(255);
   shiftOut_SRIO(255);
   PORTB |= 1<<4;            //latchPinOut 12 high
@@ -82,7 +82,7 @@ void TR_SEQ::Led_All_Off()
 {
   // turn off all the LEDs
   //Eteint toutes les Leds
-  PORTB &= (0<<4);          //latchPinOut 12 low
+  PORTB &= ~(1<<4);          //latchPinOut 12 low
   shiftOut_SRIO(0);
   shiftOut_SRIO(0);
   PORTB |= 1<<4;            //latchPinOut 12 high
@@ -96,7 +96,7 @@ void TR_SEQ::Led_SR_Write (byte SR_num, byte data)
   // function that sends one byte to the selected shift register
   // Fonction qui envoie un octet au SR selectionn�
   _SR[SR_num]=data;
-  PORTB &= (0<<4);          //latchPinOut 12 low
+  PORTB &= ~(1<<4);          //latchPinOut 12 low
   
   shiftOut_SRIO(_SR[1]);
   shiftOut_SRIO(_SR[0]);  
@@ -109,7 +109,7 @@ void TR_SEQ:: Led_Step_Write(uint16_t data)
   _SR[1]=data>>8;
   // function that sends the state of the LEDS to edit
   //Fonction qui envoi l'�tat des led pour editer
-  PORTB &= (0<<4);          //digitalWrite(_latchPinOut, 0);
+  PORTB &= ~(1<<4);          //digitalWrite(_latchPinOut, 0);
   shiftOut_SRIO(_SR[3]);
   shiftOut_SRIO(_SR[2]);
   shiftOut_SRIO(data>>8);
@@ -125,7 +125,7 @@ void TR_SEQ:: ShiftOut_Update(uint16_t data_led,uint16_t data_inst)
   _SR[1]=data_inst>>8;
   // function that sends the state of the LEDS to edit
   //Fonction qui envoi l'�tat des led pour editer
-  PORTB &= (0<<4);            //digitalWrite(_latchPinOut, 0);
+  PORTB &= ~(1<<4);            //digitalWrite(_latchPinOut, 0);
   shiftOut_SRIO(data_inst>>8);
   shiftOut_SRIO(data_inst);
   shiftOut_SRIO(data_led>>8);
@@ -139,7 +139,7 @@ void TR_SEQ:: Inst_Send(uint16_t data)
   _SR[3]=data>>8;
   // function that sends to the shift register which instrument needs to be triggered
   //Fonction qui envoi au shift register quel instrument doit etre trigger
-  PORTB &= (0<<4);            //digitalWrite(_latchPinOut, 0);
+  PORTB &= ~(1<<4);            //digitalWrite(_latchPinOut, 0);
   shiftOut_SRIO(data>>8);
   shiftOut_SRIO(data);
 	shiftOut_SRIO(_SR[1]);
@@ -159,7 +159,7 @@ void TR_SEQ::Led_Pin_Write (byte Pin_num, byte flag)
   // function which sends the state of the LED byte data
   // Fonction qui envoi l'�tat de le led  byte data;
   bitWrite(_SR[Pin_num/8],Pin_num-(8*(Pin_num/8)),flag);
-  PORTB &= (0<<4);            //digitalWrite(_latchPinOut, 0);
+  PORTB &= ~(1<<4);            //digitalWrite(_latchPinOut, 0);
   shiftOut_SRIO(_SR[1]);
   shiftOut_SRIO(_SR[0]);
   PORTB |= 1<<4;              //digitalWrite(_latchPinOut, 1);
