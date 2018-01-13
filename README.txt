@@ -13,6 +13,9 @@ A useful guide to setup an Arduino as an In-System Programmer is available at th
 5. Make sure your libraries are in the right place or your code won't compile.
 6. Program / Upload / Burn. If the process fails, you may need to burn the bootloader again.
 
+# Compiling a .hex and .syx file with Jacob Vosmaer's build tool
+1. Visit https://gitlab.com/jacobvosmaer/yocto-build and do what it says.
+
 # Reading serial output from the Yocto's microprocessor with an Arduino
 1. Make the RX / TX connections given in the "Hardware_Connections.png" image.
 2. Connect GND and RST on the Arduino board.
