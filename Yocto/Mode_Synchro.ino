@@ -42,11 +42,3 @@ void Mode_Synchro(byte mode){
     break;
   }
 }
-
-
-
-
-
-
-
-

@@ -73,7 +73,7 @@ void loop(){
       Disconnect_Callback();
       Mode_Synchro(2);//MIDI slave synchro
       if(mute_mode)mute_mode=0;
-       MIDI.setHandleClock(Handle_Clock);// Callback Clock MIDI
+      MIDI.setHandleClock(Handle_Clock);// Callback Clock MIDI
       MIDI.setHandleStart(Handle_Start);// Callback Start MIDI
       MIDI.setHandleContinue(Handle_Start);// Callback Stop MIDI
       MIDI.setHandleStop(Handle_Stop);// Callback Stop MIDI
@@ -117,7 +117,6 @@ void loop(){
       //TapeTempoInit();
     }
     if(old_selected_mode==PATTERN_MIDI_MASTER || old_selected_mode==PATTERN_EDIT){
-
       Check_BPM();
     }
     else if (old_selected_mode==PATTERN_MIDI_SLAVE){
@@ -172,7 +171,7 @@ void loop(){
     Check_Edit_Button_Setup();
     if(!button_shift){
       SR.Led_Step_Write(1<<selected_pattern);
-      PORTC&= ~(B11111100);//clear les edits leds dans ce mode 
+      PORTC &= ~(B11111100);//clear les edits leds dans ce mode 
     }
     else if(button_shift){
       SR.Led_Step_Write(1<<pattern_bank);
@@ -202,7 +201,7 @@ void loop(){
     Check_Edit_Button_Setup();
     if(!button_shift){
       SR.Led_Step_Write(1<<selected_pattern);
-      PORTC&= ~(B11111100);//clear les edits leds dans ce mode 
+      PORTC &= ~(B11111100);//clear les edits leds dans ce mode 
     }
     else if(button_shift){
       SR.Led_Step_Write(1<<pattern_bank);
@@ -230,7 +229,7 @@ void loop(){
     Check_Edit_Button_Setup();
     if(!button_shift){
       SR.Led_Step_Write(1<<selected_pattern);
-      PORTC&= ~(B11111100);//clear les edits leds dans ce mode 
+      PORTC &= ~(B11111100);//clear les edits leds dans ce mode 
     }
     else if(button_shift){
       SR.Led_Step_Write(1<<pattern_bank);
@@ -435,44 +434,3 @@ void loop(){
 
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
