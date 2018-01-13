@@ -96,18 +96,18 @@ void Handle_Start()
 
 void Handle_Stop()
 {
-  PORTD&=~(1<<5);//met a 0 la sorti DIN start
+  PORTD &= ~(1<<5);//met a 0 la sorti DIN start
   play=0;
   step_count=0;
-  PORTB &= (~1<<2);// met a 0 la sorti TRIG CPU
+  PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
 }
 
 void Handle_Clock()
 {
   Reset_Trig_Out();
-  PORTD|=(1<<4);//met a 1 la clock DIN
+  PORTD |= (1<<4);//met a 1 la clock DIN
   delayMicroseconds (2000);//delay neccessaire pour que le cycle de la clock soit correct en DIN_CLK
-  PORTD&=~(1<<4);//met a o la clock DIN
+  PORTD &=~ (1<<4);//met a o la clock DIN
   //bitWrite(PORTD,4,!(bitRead (PIND,4)));
   //PORTB &=~1<<2;// met a 0 la sorti TRIG CPU
 
