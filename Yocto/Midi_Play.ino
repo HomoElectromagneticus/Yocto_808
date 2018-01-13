@@ -193,7 +193,7 @@ void Handle_Clock()
       pattern_count=0;//reinitilise le compteur de position du song
     }
   }
-    PORTB &= (~1<<2);// met a 0 la sorti TRIG CPU
+    PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
 }
 
 
@@ -241,5 +241,3 @@ void Disconnect_Callback()
   MIDI.disconnectCallbackFromType(Start);
   MIDI.disconnectCallbackFromType(Stop);
 }
-
-
