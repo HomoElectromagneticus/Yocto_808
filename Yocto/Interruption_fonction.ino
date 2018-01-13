@@ -137,7 +137,7 @@ void Count_96PPQN()
   {
   }//tempo pour que la pulse CPU soit egal a 1ms
 
-  PORTB &=~(1<<2);// met a 0 la sorti TRIG CPU
+  PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
 
 }
 
@@ -153,7 +153,7 @@ ISR (PCINT3_vect)
   Reset_Trig_Out();
   //PLAY=================================================================
   if(PIND & (1<<4) && play){
-    PORTB &=~1<<2;// met a 0 la sorti TRIG CPU;
+    PORTB &= (~1<<2);// met a 0 la sorti TRIG CPU;
 
     //MODE ROLL
     if(roll_mode && ppqn_count%(roll_scale[scale_type][roll_pointer]/4) == 0 && inst_roll>0){//

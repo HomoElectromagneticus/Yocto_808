@@ -99,7 +99,7 @@ void Handle_Stop()
   PORTD&=~(1<<5);//met a 0 la sorti DIN start
   play=0;
   step_count=0;
-  PORTB &=~1<<2;// met a 0 la sorti TRIG CPU
+  PORTB &= (~1<<2);// met a 0 la sorti TRIG CPU
 }
 
 void Handle_Clock()
@@ -193,7 +193,7 @@ void Handle_Clock()
       pattern_count=0;//reinitilise le compteur de position du song
     }
   }
-    PORTB &=~1<<2;// met a 0 la sorti TRIG CPU
+    PORTB &= (~1<<2);// met a 0 la sorti TRIG CPU
 }
 
 
@@ -234,7 +234,7 @@ void Disconnect_Callback()
    SR.ShiftOut_Update(temp_step_led,inst_midi_buffer);
    PORTB &=~1<<2;
    */
-  PORTC&= ~(B11111100);//clear les edits leds dans ce mode 
+  PORTC &= ~(B11111100);//clear les edits leds dans ce mode 
   SR.Led_Step_Write(0);//tous les leds Step Off
   MIDI.disconnectCallbackFromType(NoteOn);
   MIDI.disconnectCallbackFromType(Clock);
