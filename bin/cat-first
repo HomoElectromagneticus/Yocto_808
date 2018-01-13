@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+abort "Usage: cat-first FIRST_FILE [OTHER_FILE...]" unless ARGV.count > 0
+
+first = ARGV.shift
+rest = ARGV.reject { |f| f == first }
+
+exec('cat', first, *rest)

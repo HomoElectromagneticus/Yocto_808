@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+# This script sends sysex files via amidi (Alsa) with a delay between
+# each message. Use 'amidi -l' to see the list of available MIDI devices
+# on your system.
+
+unless ARGV.count >= 2
+  abort "Usage: upload-sysex AMIDI_DEVICE DELAY_MILLISECONDS [SYSEX_FILE...]"
+end
+
+device = ARGV.shift
+delay = ARGV.shift.to_i / 1000.0
+
+msg = ''
+ARGF.binmode.each_byte do |b|
+  msg << sprintf('%02X', b)
+  next unless b == 0xf7
+
+  abort if !system(*%W[amidi -p #{device} -S #{msg}])
+  msg = ''
+  sleep delay
+  print '.'
+end
+
+puts # Newline after last '.'
