@@ -1,6 +1,4 @@
-
 #define NOTE_ON 0x90 //note on sur canal 1
-
 
 /////////////////////////////////////////////////////////////////////////////////
 //Interruption midi en mode midi play
@@ -54,7 +52,7 @@ void Handle_NoteOn(byte channel, byte pitch, byte velocity)
   midi_led_flash_count = 10;
 
   //on enregistre le numero du noteOn dans l'instrument selectionné
-  if(button_shift){
+  if(button_shift) {
     inst_midi_note[selected_inst]=pitch;
     inst_midi_note_edited=1;
   }
@@ -82,32 +80,32 @@ void Handle_NoteOn(byte channel, byte pitch, byte velocity)
   }
 }
 
-void Handle_NoteOff(byte channel, byte pitch, byte velocity)
-{
+
+void Handle_NoteOff(byte channel, byte pitch, byte velocity){
 }
 
-void Handle_Start()
-{
+
+void Handle_Start() {
   PORTD |= (1<<5);// met au niveau haut le sorti Din start
   play=1;
   ppqn_count=0;
   first_play=1;
 }
 
-void Handle_Stop()
-{
+
+void Handle_Stop() {
   PORTD &= ~(1<<5);//met a 0 la sorti DIN start
   play=0;
   step_count=0;
   PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
 }
 
-void Handle_Clock()
-{
+
+void Handle_Clock() {
   Reset_Trig_Out();
   PORTD |= (1<<4);//met a 1 la clock DIN
   delayMicroseconds (2000);//delay neccessaire pour que le cycle de la clock soit correct en DIN_CLK
-  PORTD &=~ (1<<4);//met a o la clock DIN
+  PORTD &= ~(1<<4);//met a o la clock DIN
   //bitWrite(PORTD,4,!(bitRead (PIND,4)));
   //PORTB &=~1<<2;// met a 0 la sorti TRIG CPU
 
@@ -197,7 +195,6 @@ void Handle_Clock()
 }
 
 
-
 void Check_Midi_Channel()
 {
   unsigned int reading = SR.Button_Step_Read();// on lit les boutons
@@ -222,6 +219,7 @@ void Check_Midi_Channel()
   }
   old_step_button_state=reading;
 }
+
 
 void Disconnect_Callback()
 {

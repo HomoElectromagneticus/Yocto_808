@@ -243,8 +243,8 @@ unsigned long timer_off=0;
 
 unsigned long noteOnOff[16];
 
-void defNotes()
-{
+
+void defNotes() {
   inst_midi_note[0]= 59; //Array des note midi de chaque instruments
   inst_midi_note[1]= BD_MIDI_NOTE;//Array des note midi de chaque instruments
   inst_midi_note[2]= SD_MIDI_NOTE;//Array des note midi de chaque instruments
@@ -262,11 +262,12 @@ void defNotes()
   inst_midi_note[14]=64; //Array des note midi de chaque instruments
   inst_midi_note[15]=65; //Array des note midi de chaque instruments
 }
+
+
 //====================================================
 //debut du setup
 //====================================================
-void setup(){
-
+void setup() {
   /* //Initialise l'UART1
    UCSR1B |= (1 << RXEN1) | (1 << TXEN1);   // Active la transmission et la reception sur l'UART1
    UCSR1C |= (1 << UCSZ10) | (1 << UCSZ11); // Use 8-bit character sizes
@@ -307,9 +308,7 @@ void setup(){
 }
 
 
-
-void Chenillard()
-{
+void Chenillard() {
   int temp=0;//variable pour le chenillard
   for (byte i=0;i<16;i++)
   {

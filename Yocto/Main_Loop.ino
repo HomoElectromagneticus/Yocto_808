@@ -344,16 +344,16 @@ void loop(){
     //================================================
   case MIDI_PLAY:
     // INIT---------------------------------------
-    if(old_selected_mode!=MIDI_PLAY){
-      old_selected_mode=MIDI_PLAY;
-      PORTC&= ~(B11111100);//clear les edits leds dans ce mode  
+    if(old_selected_mode != MIDI_PLAY) {
+      old_selected_mode = MIDI_PLAY;
+      PORTC &= ~(B11111100);//clear les edits leds dans ce mode  
 
       Disconnect_Callback();
       Mode_Synchro(2);
 
       MIDI.setHandleNoteOn(Handle_NoteOn);  // Callback NoteON
       MIDI.setInputChannel(selected_channel+1);//initialise le channel midi
-      if(play){
+      if(play) {
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi
         PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP

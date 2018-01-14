@@ -700,39 +700,34 @@ void Load_Midi_Channel()
 }
 
 
-void Wire_Begin_TX(uint16_t address)
-{
+void Wire_Begin_TX(uint16_t address) {
   Wire.beginTransmission(0x50);
   Wire.write( (byte)(address >> 8));
   Wire.write( (byte)(address & 0xFF));
 }
 
 
-void Play_Version()
-{
-  if (button_reset)
-  {
+void Play_Version() {
+  if (button_reset) {
     byte count = 0;
-    while ( count < major_version )
-    {
-      PORTC |=  (1 << 7);     
+    while ( count < major_version ) {
+      PORTC |= (1 << 7);     
       PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
       SR.ShiftOut_Update(temp_step_led,0b10);
       delay(200);
-      PORTC &=  ~(1 << 7);     
+      PORTC &= ~(1 << 7);     
       PORTB &= ~(1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
       SR.ShiftOut_Update(temp_step_led,0);
       delay(100);
       count++;
     }
     count=0;
-    while ( count < minor_version )
-    {
-      PORTC |=  (1 << 6);     
-      PORTB|= (1<<2);// met a 0 la sorti TRIG CPU
+    while ( count < minor_version ) {
+      PORTC |= (1 << 6);     
+      PORTB |= (1<<2);// met a 0 la sorti TRIG CPU
       SR.ShiftOut_Update(temp_step_led,0b10000000);
       delay(200);
-      PORTC &=  ~(1 << 6);     
+      PORTC &= ~(1 << 6);     
       PORTB &= ~(1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
       SR.ShiftOut_Update(temp_step_led,0);
       delay(100);
@@ -741,21 +736,3 @@ void Play_Version()
   }
   button_reset=0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
