@@ -149,25 +149,3 @@ void Reset_Song()
     selected_pattern = pattern_nbr % 16;//Pour retrouver le nbr du pattern selectionner on soustrait 16 fois la bank au numero du pattern
     // Pas besoin d'appeler Load PAttern, l'appel suivant Update_Pattern_EEprom() le fait si Old_pattern_Nbr != pattern_Nbr
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

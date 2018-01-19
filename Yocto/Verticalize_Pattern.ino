@@ -115,12 +115,3 @@ void Verticalize_Pattern_After_Paste()
     }
   } 
 }
-
-
-
-
-
-
-
-
-

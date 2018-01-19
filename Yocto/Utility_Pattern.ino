@@ -194,15 +194,3 @@ void Paste_Pattern()
     Chenillard();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-

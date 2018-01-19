@@ -28,5 +28,3 @@ void Send_Trig_Out_Midi()
  PORTB |= ((1<<1)|(1<<0));
  TRIG1_PORT |= (1<<6);
  }*/
-
-
