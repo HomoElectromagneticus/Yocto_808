@@ -68,26 +68,26 @@ void loop(){
     //=================================================
   case PATTERN_MIDI_SLAVE:
     // INIT----------------------------------------
-    if(old_selected_mode!=PATTERN_MIDI_SLAVE &&!play){
-      old_selected_mode=PATTERN_MIDI_SLAVE;
+    if(old_selected_mode!=PATTERN_MIDI_SLAVE && !play) {
+      old_selected_mode = PATTERN_MIDI_SLAVE;
       Disconnect_Callback();
-      Mode_Synchro(2);//MIDI slave synchro
-      if(mute_mode)mute_mode=0;
-      MIDI.setHandleClock(Handle_Clock);// Callback Clock MIDI
-      MIDI.setHandleStart(Handle_Start);// Callback Start MIDI
-      MIDI.setHandleContinue(Handle_Start);// Callback Stop MIDI
-      MIDI.setHandleStop(Handle_Stop);// Callback Stop MIDI
-      inst_mute=0;
+      Mode_Synchro(2);                      //MIDI slave synchro
+      if(mute_mode) mute_mode=0;
+      MIDI.setHandleClock(Handle_Clock);    // Callback Clock MIDI
+      MIDI.setHandleStart(Handle_Start);    // Callback Start MIDI
+      MIDI.setHandleContinue(Handle_Start); // Callback Stop MIDI
+      MIDI.setHandleStop(Handle_Stop);      // Callback Stop MIDI
+      inst_mute = 0;
       //Serial.println("initilaize_PTR MIDI Slave");
     }
-    if (old_selected_mode==PATTERN_MIDI_MASTER){
+    if (old_selected_mode==PATTERN_MIDI_MASTER) {
       Check_BPM();
       Check_Edit_Button_Pattern();
     }
-    else if (old_selected_mode==PATTERN_DIN_SLAVE){
+    else if (old_selected_mode==PATTERN_DIN_SLAVE) {
       Check_Edit_Button_Pattern();
     }
-    else{
+    else {
       MIDI.read();
       Check_Edit_Button_Pattern();
     }

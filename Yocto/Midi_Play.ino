@@ -40,9 +40,8 @@
  }*/
 
 
-void Handle_NoteOn(byte channel, byte pitch, byte velocity)
-{
-  if (velocity == 0) {
+void Handle_NoteOn(byte channel, byte pitch, byte velocity) {
+  if (velocity == 0){
     return;
   }
 
@@ -53,8 +52,8 @@ void Handle_NoteOn(byte channel, byte pitch, byte velocity)
 
   //on enregistre le numero du noteOn dans l'instrument selectionné
   if(button_shift) {
-    inst_midi_note[selected_inst]=pitch;
-    inst_midi_note_edited=1;
+    inst_midi_note[selected_inst] = pitch;
+    inst_midi_note_edited = 1;
   }
 
   if (pitch == inst_midi_note[0]) bitSet(inst_midi_buffer, 0);
@@ -81,7 +80,7 @@ void Handle_NoteOn(byte channel, byte pitch, byte velocity)
 }
 
 
-void Handle_NoteOff(byte channel, byte pitch, byte velocity){
+void Handle_NoteOff(byte channel, byte pitch, byte velocity) {
 }
 
 
@@ -115,114 +114,111 @@ void Handle_Clock() {
     //SR.ShiftOut_Update(temp_step_led,inst_roll);
     //Send_Trig_Out();
   }
-  if(step_changed){
+  if(step_changed) {
     PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
     SR.ShiftOut_Update(temp_step_led,(inst_step_buffer[step_count][pattern_buffer])&(~inst_mute));
     Send_Trig_Out();
     step_changed=0;
   }
-  else{
+  else {
     SR.ShiftOut_Update(temp_step_led,inst_roll);
   }
   ppqn_count++;
   tempo_led_count++;
 
   //PLAY=================================================================
-  if(play){
-
+  if(play) {
     //Update clignotement des leds
-    if (tempo_led_count>=12){
-      tempo_led_count=0;//si le compteur egale un temps on le reinitialise
-      tempo_led_flag_block=!tempo_led_flag_block;//clignote au tempo
+    if (tempo_led_count >= 12) {
+      tempo_led_count = 0;//si le compteur egale un temps on le reinitialise
+      tempo_led_flag_block =! tempo_led_flag_block;//clignote au tempo
     }
-    if(ppqn_count>=3) tempo_led_flag=0;//on alterne la valeur du flag de la led tempo.
-    else tempo_led_flag=1; 
+    if(ppqn_count >= 3) tempo_led_flag = 0;//on alterne la valeur du flag de la led tempo.
+    else tempo_led_flag = 1;
 
-    if (first_play){
+    if (first_play) {
       PORTB |= 1<<2;//envoie une impulsion sur la sorti trig CPU a chaque pas
       SR.ShiftOut_Update(temp_step_led,(inst_step_buffer[0][pattern_buffer])&(~inst_mute));
       Send_Trig_Out();
-      first_play=0;//initialise le flag
+      first_play = 0;//initialise le flag
     }
-    if (ppqn_count>=pattern_scale[pattern_buffer]/4){
-      ppqn_count=0;
+    if (ppqn_count >= pattern_scale[pattern_buffer]/4) {
+      ppqn_count = 0;
       step_count++;
-      if (step_count==(nbr_step[pattern_buffer]-1)){
-        middle_mesure_flag=1;//indique le mileu de la meusure enfin que la mesure est avancé
+      if (step_count == (nbr_step[pattern_buffer]-1)) {
+        middle_mesure_flag = 1;//indique le mileu de la meusure enfin que la mesure est avancé
         //MODE PATTERN PLAY--------------------------------------------------------------------------------------------------------
         if(selected_mode==PATTERN_MIDI_MASTER || selected_mode==PATTERN_MIDI_SLAVE || selected_mode==PATTERN_DIN_SLAVE){
           pattern_count++;//compte les mesure pour faire avance les pattern en mode song ou quand un block de pattern est selectionner
           if(pattern_count>nbr_pattern_block){//on reset le comteur quand il est superieur au nombre de pattern a lire dans le block
             pattern_count=0;
           }
-          if (nbr_pattern_block_changed_A){
-            nbr_pattern_block_changed_A=0;
-            pattern_count=0;
+          if (nbr_pattern_block_changed_A) {
+            nbr_pattern_block_changed_A = 0;
+            pattern_count = 0;
           }
         }
         //MODE SONG PLAY--------------------------------------------------------------------------------------------------------
         if(selected_mode==SONG_MIDI_MASTER || selected_mode==SONG_MIDI_SLAVE || selected_mode==SONG_DIN_SLAVE){
           pattern_count++;//compte les mesure pour faire avance les pattern en mode song ou quand un block de pattern est selectionner
           if(pattern_count >= total_pattern_song[song_buffer]){//on reset le comteur quand il est superieur au nombre de pattern dans le song
-            pattern_count=0;
+            pattern_count = 0;
           }
         }
       }
-      step_changed=1;//flag que le pas a change
-      if(step_count>=nbr_step[pattern_buffer]){
-        step_count=0;
-        if(load_pattern_ok){
-          pattern_buffer=!pattern_buffer;//permet de switcher entre les deux pattern present dans le buffer au debut de la mesure
-          load_pattern_ok=0;
+      step_changed = 1;       //flag que le pas a change
+      if(step_count >= nbr_step[pattern_buffer]) {
+        step_count = 0;
+        if(load_pattern_ok) {
+          pattern_buffer =! pattern_buffer;//permet de switcher entre les deux pattern present dans le buffer au debut de la mesure
+          load_pattern_ok = 0;
         }
       }
     } 
   }
   //STOP=================================================================
-  else if (!play){
-    if (tempo_led_count>=12){
-      tempo_led_count=0;//si le compteur egale un temps on le reinitialise
-      tempo_led_flag=!tempo_led_flag;//on alterne la valeur du flag de la led tempo.
+  else if (!play) {
+    if (tempo_led_count >= 12) {
+      tempo_led_count = 0;    //si le compteur egale un temps on le reinitialise
+      tempo_led_flag =! tempo_led_flag;//on alterne la valeur du flag de la led tempo.
     }
     if(selected_mode==PATTERN_MIDI_MASTER || selected_mode==PATTERN_MIDI_SLAVE || selected_mode==PATTERN_DIN_SLAVE){
-      pattern_count=0;//reinitilise le compteur du block pattern
+      pattern_count = 0;      //reinitilise le compteur du block pattern
     }
     if((selected_mode==SONG_MIDI_MASTER || selected_mode==SONG_MIDI_SLAVE || selected_mode==SONG_DIN_SLAVE)&&(button_reset)){
-      pattern_count=0;//reinitilise le compteur de position du song
+      pattern_count = 0;      //reinitilise le compteur de position du song
     }
   }
-    PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
+    PORTB &= ~(1<<2);         // met a 0 la sorti TRIG CPU
 }
 
 
-void Check_Midi_Channel()
-{
-  unsigned int reading = SR.Button_Step_Read();// on lit les boutons
-  if(reading!=old_step_button_state){// si ils ont changer on enregistre le temps
-    millis_debounce_step_button=millis();
+void Check_Midi_Channel() {
+  unsigned int reading = SR.Button_Step_Read();   // on lit les boutons
+  if(reading != old_step_button_state) {            // si ils ont changer on enregistre le temps
+    millis_debounce_step_button = millis();
   }
-  if((millis()-millis_debounce_step_button)>=DEBOUNCE){
-    if(reading!=step_button_state){
+  if((millis()-millis_debounce_step_button) >= DEBOUNCE) {
+    if(reading!=step_button_state) {
       step_button_state=reading;
-      if(!button_shift){
-        for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
-          if (bitRead (step_button_state,i)){
+      if(!button_shift) {
+        for (byte i=0;i<16;i++) {//loop autant de fois que de bouton step soit 16
+          if (bitRead (step_button_state,i)) {
             //on retourne la valeur du pattern selectionner
-            selected_channel=i;
-            selected_channel_changed=1;//flag que le pattern selectionner a change
-            temp_step_led= (1<<selected_channel);
+            selected_channel = i;
+            selected_channel_changed = 1;//flag que le pattern selectionner a change
+            temp_step_led = (1<<selected_channel);
             break;
           }
         }
       }
     }
   }
-  old_step_button_state=reading;
+  old_step_button_state = reading;
 }
 
 
-void Disconnect_Callback()
-{
+void Disconnect_Callback() {
   /*  
    DDRA |= ~B11111100;// les PIN 39 et 40 sont en sorti pour le commun des rotary switch les autres sont en entree pour l'encoder et les rotary switch
    DDRC |= B11111100;// les 6 bits fort du PORTC sont en sorti pour les 6 led Edit

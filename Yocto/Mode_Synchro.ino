@@ -4,10 +4,10 @@
 //Ici on a toutes lies initialisation de differnete interruption des 3 modes
 //
 
-void Mode_Synchro(byte mode){
-  switch (mode){
+void Mode_Synchro(byte mode) {
+  switch (mode) {
 
-    //master mode=0
+  //master mode=0
   case 0:
   sync_mode = MASTER;
     cli();//arrete toutes les interruptions
@@ -18,7 +18,7 @@ void Mode_Synchro(byte mode){
     sei();                     // turn on interrupts
     break;
 
-    //Din synchro mode=1
+  //Din synchro mode=1
   case 1:
     sync_mode = DIN_SLAVE;
     cli();//arrete toutes les interruptions
@@ -30,7 +30,7 @@ void Mode_Synchro(byte mode){
     sei();                     // turn on interrupts
     break;
 
-    //Midi Synchro mode=2
+  //Midi Synchro mode=2
   case 2:
     sync_mode = MIDI_SLAVE;
     cli();//arrete toutes les interruptions
