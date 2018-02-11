@@ -103,10 +103,11 @@ void Handle_Stop() {
 void Handle_Clock() {
   Reset_Trig_Out();
   PORTD |= (1<<4);//met a 1 la clock DIN
-  delayMicroseconds (2000);//delay neccessaire pour que le cycle de la clock soit correct en DIN_CLK
+  delayMicroseconds (1000);//delay neccessaire pour que le cycle de la clock soit correct en DIN_CLK
   PORTD &= ~(1<<4);//met a o la clock DIN
   //bitWrite(PORTD,4,!(bitRead (PIND,4)));
-  //PORTB &=~1<<2;// met a 0 la sorti TRIG CPU
+  //PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
+
 
   //MODE ROLL
   if(roll_mode && ppqn_count%(roll_scale[scale_type][roll_pointer]/4) == 0 && inst_roll>0){//
@@ -115,14 +116,15 @@ void Handle_Clock() {
     //Send_Trig_Out();
   }
   if(step_changed) {
-    PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
-    SR.ShiftOut_Update(temp_step_led,(inst_step_buffer[step_count][pattern_buffer])&(~inst_mute));
+    SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
     Send_Trig_Out();
     step_changed=0;
+	PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
   }
   else {
     SR.ShiftOut_Update(temp_step_led,inst_roll);
   }
+
   ppqn_count++;
   tempo_led_count++;
 
@@ -137,6 +139,7 @@ void Handle_Clock() {
     else tempo_led_flag = 1;
 
     if (first_play) {
+	  ppqn_count=0;//initialise le compteur PPQN
       PORTB |= 1<<2;//envoie une impulsion sur la sorti trig CPU a chaque pas
       SR.ShiftOut_Update(temp_step_led,(inst_step_buffer[0][pattern_buffer])&(~inst_mute));
       Send_Trig_Out();
@@ -189,7 +192,7 @@ void Handle_Clock() {
       pattern_count = 0;      //reinitilise le compteur de position du song
     }
   }
-    PORTB &= ~(1<<2);         // met a 0 la sorti TRIG CPU
+  PORTB &= ~(1<<2);         // met a 0 la sorti TRIG CPU
 }
 
 
