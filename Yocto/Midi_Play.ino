@@ -117,7 +117,7 @@ void Handle_Clock() {
         SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
         Send_Trig_Out();
         step_changed = 0;
-	      PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+	    PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
     }
     else {
         SR.ShiftOut_Update(temp_step_led,inst_roll);
@@ -137,7 +137,7 @@ void Handle_Clock() {
         else tempo_led_flag = 1;
 
         if (first_play) {
-	          ppqn_count = 0;   //initialise le compteur PPQN
+	        ppqn_count = 0;   //initialise le compteur PPQN
             PORTB |= 1<<2;    //envoie une impulsion sur la sorti trig CPU a chaque pas
             SR.ShiftOut_Update(temp_step_led,(inst_step_buffer[0][pattern_buffer])&(~inst_mute));
             Send_Trig_Out();
@@ -183,10 +183,10 @@ void Handle_Clock() {
             tempo_led_count = 0;    //si le compteur egale un temps on le reinitialise
             tempo_led_flag =! tempo_led_flag;//on alterne la valeur du flag de la led tempo.
         }
-        if(selected_mode==PATTERN_MIDI_MASTER || selected_mode==PATTERN_MIDI_SLAVE || selected_mode==PATTERN_DIN_SLAVE){
+        if(selected_mode==PATTERN_MIDI_MASTER || selected_mode==PATTERN_MIDI_SLAVE || selected_mode==PATTERN_DIN_SLAVE) {
             pattern_count = 0;      //reinitilise le compteur du block pattern
         }
-        if((selected_mode==SONG_MIDI_MASTER || selected_mode==SONG_MIDI_SLAVE || selected_mode==SONG_DIN_SLAVE)&&(button_reset)){
+        if((selected_mode==SONG_MIDI_MASTER || selected_mode==SONG_MIDI_SLAVE || selected_mode==SONG_DIN_SLAVE)&&(button_reset)) {
             pattern_count = 0;      //reinitilise le compteur de position du song
         }
     }
