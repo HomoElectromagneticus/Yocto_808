@@ -1,6 +1,8 @@
 
 /* Yocto clone TR808 Sequencer Firmware
 *
+*  v1.0g: -Fixed roll in MIDI Slave mode
+*
 *  v1.0f: -Fixed Trigger 2
 *
 *  v1.0e: -Merged Jacob Vosamaer's MIDI Expander Mode timing fixes
