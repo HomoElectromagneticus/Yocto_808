@@ -28,6 +28,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <MIDI.h>
+#include <SoftwareSerial.h>
 
 #define BD_MIDI_NOTE 36  //C2
 #define SD_MIDI_NOTE 38  //D2
@@ -242,11 +243,9 @@ boolean inst_midi_note_edited=0;//flag que les note midi ont changé
 unsigned int midi_led_flash_count = 0; // To flash the LED on MIDI activity
 unsigned int midi_trig_pulse_count = 0; // To create TRIG1/2/3 pulse
 
-
 unsigned long timer_off=0;
 
 unsigned long noteOnOff[16];
-
 
 void defNotes() {
   inst_midi_note[0]= 59; //Array des note midi de chaque instruments
@@ -266,6 +265,11 @@ void defNotes() {
   inst_midi_note[14]=64; //Array des note midi de chaque instruments
   inst_midi_note[15]=65; //Array des note midi de chaque instruments
 }
+
+// Initialize midi.
+//MIDI_CREATE_DEFAULT_INSTANCE();
+//MIDI_CREATE_INSTANCE(SoftwareSerial, Serial1, MIDI)
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 
 //====================================================
@@ -295,9 +299,15 @@ void setup() {
   Timer1.initialize(timer_time); // set a timer of length in microseconds 
 
   //Initialise les liaisons serie
-  Serial.begin(115200);//liaison  serie pour debugger
+  Serial.begin(115200); //liaison  serie pour debugger
+  delay(10);
+  Serial.println("abcdefghijklmnopqrstuvwxyz");delay(10);
+  Serial.println("qwerty");delay(10);
+  Serial.println("Initialized serial");delay(10);
 
+  // Midi
   MIDI.begin(MIDI_CHANNEL_OMNI); 
+
 
   defNotes();
 

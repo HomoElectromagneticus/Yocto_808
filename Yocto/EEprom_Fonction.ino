@@ -1,7 +1,7 @@
 //La library Wire a du etre modifier pour grossir le buffer jusqu'a 128 byte.
 //le fichier twi.h et wire.h on etait modifier : #define BUFFER_LENGTH 128
 
-#define PTRN_SIZE_BYTE (uint16_t)64  //deux octets pour 16 pas fois 16 instruments fois deux pour les deux parti 1a16 et 17a32 
+#define PTRN_SIZE_BYTE (uint16_t)64  //deux octets pour 16 pas fois 16 instruments fois deux pour les deux parti 1a16 et 17a32 = 512/8
 #define PTRN_SETUP_SIZE_BYTE (uint16_t)2 //1 octet pour le nombre pas + 1 octet pour la scale
 #define PTRN_NB (uint16_t)256 // 16 * 16 
 
@@ -542,7 +542,7 @@ void Initialize_EEprom()
     button_init=0;//reinitialise le bouton init pour eviter que la loop se fasse deux fois
 
 
-    //loop autant de fois que de nombre de pattern
+    //loop autant de fois que de nombre de pattern (256)
     for ( x=0; x< PTRN_NB ;x++){
 
       unsigned int adress = OFFSET_PATTERN + x * PTRN_SIZE_BYTE;
@@ -646,6 +646,70 @@ void Initialize_EEprom()
 
   }
   button_init=0;//reinitialise le bouton init pour eviter que la loop se fasse deux fois
+}
+
+
+void Dump_EEprom()
+{
+  if (button_shift) {
+    button_shift=0; // Prevent the loop from running twice
+    Chenillard();
+
+    byte start[5] = {0xF0, 0x7D, 0x08, 0x08, 0x03};
+    byte stop[1] = {0xF7};
+    byte buffer[128]; // This should be more than enough.
+    
+    // 1. Dump all patterns one by one. (0x03)
+    // --------------------------------
+    // Loop over all patterns
+    // TODO change 1 to PTRN_NB, just for testing
+    for (int x=OFFSET_PATTERN; x<1; x++) { 
+      Chenillard();
+      byte pattern[PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE];
+      // First take the actual pattern data.
+      unsigned int address = OFFSET_PATTERN + x * PTRN_SIZE_BYTE;
+      Wire_Begin_TX(address);
+      Wire.endTransmission();
+      Wire.requestFrom(0x50,PTRN_SIZE_BYTE);
+      for (int y=0; y<PTRN_SIZE_BYTE; y++) {
+        pattern[y] = Wire.read();      
+      }
+      // Next take 2 bytes from pattern setup data.
+      address = OFFSET_PATTERN_SETUP + x * PTRN_SETUP_SIZE_BYTE;
+      Wire_Begin_TX(address);
+      Wire.endTransmission();
+      Wire.requestFrom(0x50,PTRN_SETUP_SIZE_BYTE);
+      pattern[PTRN_SIZE_BYTE] = Wire.read();      
+      pattern[PTRN_SIZE_BYTE + 1] = Wire.read();
+      // Encode data. 
+      unsigned int outLength = midi::encodeSysEx(pattern, buffer, PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE);
+      // Send start and manufacturer ID
+      MIDI.sendSysEx(5, start, true);
+      // Send data.
+      MIDI.sendSysEx(outLength, buffer, true);
+      // Send end.
+      MIDI.sendSysEx(1, stop, true);
+    }
+    
+    // 2. Send songs (ID 0x05)
+    // @TODO
+
+    // 3. Send config (ID 0x06)
+    // @TODO
+
+    // Temp lightshow to indicate we done
+    Chenillard();
+  }
+  button_shift=0; // Prevent the loop from running twice
+}
+
+void Receive_EEprom() 
+{
+  byte start[6] = {0xF0, 0x7D, 0x08, 0x08, 0x03, 0xF7};
+  MIDI.sendSysEx(6, start, true);
+  // Todo
+  // Celebrate with lightshow.
+  Chenillard();
 }
 
 //======================================================================

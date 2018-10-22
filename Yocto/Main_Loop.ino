@@ -1,7 +1,6 @@
 void loop(){
 
   Check_Menu_Inst();
-
   switch(selected_mode){
 
     //================================================
@@ -432,5 +431,28 @@ void loop(){
 
     break;
 
+  case EEPROM_DUMP:
+    Check_Edit_Button_Setup();
+
+    if (button_shift) {
+      Serial.println("OOOH Dump_EEpromm");
+
+      Dump_EEprom();
+    }
+    break;
+  case EEPROM_RECEIVE:
+    if (old_selected_mode != EEPROM_RECEIVE) {
+      //MIDI.setHandleSystemExclusive(Handle_Sysex);
+      bool receiving_sysex = false;
+    }
+    Check_Edit_Button_Setup();
+    if (button_shift) {
+      bool receiving_sysex = true;
+      // Just a test
+      Serial.println("OOOH Receive_EEpromm");
+      Receive_EEprom();
+    }
+    break;
   }
+  
 }
