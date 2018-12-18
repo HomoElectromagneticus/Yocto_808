@@ -36,7 +36,7 @@ for future versions.
   void Update_Pattern_EEprom();
   void Update_Song_EEprom();
   void Dump_EEprom();
-  void Receive_EEprom();
+  void Receive_EEprom(byte * array, unsigned size);
   void Mode_Song_Edit();
   void Paste_Pattern();
   void Copy_Pattern();

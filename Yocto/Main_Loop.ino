@@ -433,24 +433,29 @@ void loop(){
 
   case EEPROM_DUMP:
     Check_Edit_Button_Setup();
+    if (old_selected_mode != EEPROM_DUMP) {
+      old_selected_mode = EEPROM_DUMP;
+      Serial.println("EEPROM_DUMP");
+    }
 
     if (button_shift) {
-      Serial.println("OOOH Dump_EEpromm");
+      Serial.println("Start Dump_EEpromm");
 
       Dump_EEprom();
     }
     break;
   case EEPROM_RECEIVE:
-    if (old_selected_mode != EEPROM_RECEIVE) {
-      //MIDI.setHandleSystemExclusive(Handle_Sysex);
-      bool receiving_sysex = false;
-    }
     Check_Edit_Button_Setup();
-    if (button_shift) {
-      bool receiving_sysex = true;
-      // Just a test
-      Serial.println("OOOH Receive_EEpromm");
-      Receive_EEprom();
+    if (old_selected_mode != EEPROM_RECEIVE) {
+      old_selected_mode = EEPROM_RECEIVE;
+      Serial.println("EEPROM_RECEIVE");
+    }
+
+    while (MIDI.read()) {
+      if (MIDI.getType() >= 0xf0) // SysEX
+      {
+        Restore_EEprom(MIDI.getSysExArray(), MIDI.getSysExArrayLength());
+      }
     }
     break;
   }

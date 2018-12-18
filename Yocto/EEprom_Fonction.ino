@@ -656,38 +656,60 @@ void Dump_EEprom()
     Chenillard();
 
     byte start[5] = {0xF0, 0x7D, 0x08, 0x08, 0x03};
+
     byte stop[1] = {0xF7};
     byte buffer[128]; // This should be more than enough.
     
+    Serial.println("Run through mem");
+
     // 1. Dump all patterns one by one. (0x03)
     // --------------------------------
     // Loop over all patterns
     // TODO change 1 to PTRN_NB, just for testing
     for (int x=OFFSET_PATTERN; x<1; x++) { 
+      Serial.println(x, DEC);
       Chenillard();
-      byte pattern[PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE];
+      byte pattern[PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // 64+2
+
       // First take the actual pattern data.
       unsigned int address = OFFSET_PATTERN + x * PTRN_SIZE_BYTE;
       Wire_Begin_TX(address);
       Wire.endTransmission();
+      // 1 pattern is 64 bytes. (4 bytes per 32 step instrument x 16)
       Wire.requestFrom(0x50,PTRN_SIZE_BYTE);
+
       for (int y=0; y<PTRN_SIZE_BYTE; y++) {
-        pattern[y] = Wire.read();      
+        Serial.println("Reading pattern");
+        Serial.println(y, DEC);
+        pattern[y] = Wire.read();    
+        Serial.println(pattern[y], BIN);
       }
       // Next take 2 bytes from pattern setup data.
       address = OFFSET_PATTERN_SETUP + x * PTRN_SETUP_SIZE_BYTE;
+      Serial.println("address");
+      Serial.println(address, DEC);
       Wire_Begin_TX(address);
       Wire.endTransmission();
       Wire.requestFrom(0x50,PTRN_SETUP_SIZE_BYTE);
-      pattern[PTRN_SIZE_BYTE] = Wire.read();      
+      pattern[PTRN_SIZE_BYTE] = Wire.read();  
+      Serial.println(pattern[PTRN_SIZE_BYTE], HEX);
       pattern[PTRN_SIZE_BYTE + 1] = Wire.read();
-      // Encode data. 
+      Serial.println(pattern[PTRN_SIZE_BYTE + 1], HEX);
+      // Encode data.  66 = total size of pattern
       unsigned int outLength = midi::encodeSysEx(pattern, buffer, PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE);
+      Serial.println(outLength, DEC);
+
+      Serial.println("about to print the pattern");
+      for (int z=0; z<outLength; z++) {
+        Serial.println(pattern[z], HEX);
+      }
       // Send start and manufacturer ID
       MIDI.sendSysEx(5, start, true);
       // Send data.
+      Serial.println("SEnd sysex");
       MIDI.sendSysEx(outLength, buffer, true);
       // Send end.
+      Serial.println("send end");
       MIDI.sendSysEx(1, stop, true);
     }
     
@@ -703,13 +725,31 @@ void Dump_EEprom()
   button_shift=0; // Prevent the loop from running twice
 }
 
-void Receive_EEprom() 
+void Receive_EEprom(byte* sysex, unsigned size) 
 {
-  byte start[6] = {0xF0, 0x7D, 0x08, 0x08, 0x03, 0xF7};
-  MIDI.sendSysEx(6, start, true);
-  // Todo
-  // Celebrate with lightshow.
-  Chenillard();
+  Serial.println("In Receive_EEprom");
+  // If this isn't sysex, what are we even doing here?
+  if (sysex[0] != 0xF0) {
+    return;
+  }
+
+  // @TODO: The size > 5 is a placeholder for now
+  if (size < 5) {
+    return;
+  }
+
+  // Check if the sysex is meant for yocto.
+  if (sysex[1] == 0xFD && sysex[2] == 0x08 && sysex[3] == 0x08) {
+    // 0x03 means we are receiving a pattern.
+    if (sysex[4] == 0x03) {
+      for (unsigned index=0; index<size; index++) {
+        Serial.println(sysex[index], HEX);
+      }
+      // Todo
+      // Celebrate with lightshow.
+      Chenillard();
+    }
+  }
 }
 
 //======================================================================
