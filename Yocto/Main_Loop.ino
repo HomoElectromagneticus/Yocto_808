@@ -454,7 +454,7 @@ void loop(){
     while (MIDI.read()) {
       if (MIDI.getType() >= 0xf0) // SysEX
       {
-        Restore_EEprom(MIDI.getSysExArray(), MIDI.getSysExArrayLength());
+        Receive_EEprom(MIDI.getSysExArray(), MIDI.getSysExArrayLength());
       }
     }
     break;

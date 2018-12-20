@@ -725,9 +725,11 @@ void Dump_EEprom()
   button_shift=0; // Prevent the loop from running twice
 }
 
-void Receive_EEprom(byte* sysex, unsigned size) 
+void Receive_EEprom(const byte* sysex, unsigned size) 
 {
   Serial.println("In Receive_EEprom");
+  Serial.println(sysex[0], HEX);
+  Serial.println(size, DEC);
   // If this isn't sysex, what are we even doing here?
   if (sysex[0] != 0xF0) {
     return;
@@ -737,9 +739,9 @@ void Receive_EEprom(byte* sysex, unsigned size)
   if (size < 5) {
     return;
   }
-
+  Serial.println(sysex[4], HEX);
   // Check if the sysex is meant for yocto.
-  if (sysex[1] == 0xFD && sysex[2] == 0x08 && sysex[3] == 0x08) {
+  if (sysex[1] == 0x7D && sysex[2] == 0x08 && sysex[3] == 0x08) {
     // 0x03 means we are receiving a pattern.
     if (sysex[4] == 0x03) {
       for (unsigned index=0; index<size; index++) {
@@ -748,6 +750,14 @@ void Receive_EEprom(byte* sysex, unsigned size)
       // Todo
       // Celebrate with lightshow.
       Chenillard();
+    }
+    // 0x05 means we are receiving a song.
+    else if (sysex[4] == 0x05) {
+      // TODO.
+    }
+    // 0x 06 means we are receiving config.
+    else if (sysex[4] == 0x06) {
+      // TODO.
     }
   }
 }
