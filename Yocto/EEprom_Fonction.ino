@@ -747,8 +747,7 @@ void Dump_EEprom()
 void Receive_EEprom(const byte* sysex, unsigned size) 
 {
   Serial.println("In Receive_EEprom");
-  Serial.println(sysex[0], HEX);
-  Serial.println(size, DEC);
+
   // If this isn't sysex, what are we even doing here?
   if (sysex[0] != 0xF0) {
     return;
@@ -758,41 +757,49 @@ void Receive_EEprom(const byte* sysex, unsigned size)
   if (size < 5) {
     return;
   }
-  Serial.println(sysex[4], HEX);
+
   // Check if the sysex is meant for yocto.
   if (sysex[1] == 0x7D && sysex[2] == 0x08 && sysex[3] == 0x08) {
     // 0x03 means we are receiving a pattern.
     if (sysex[4] == 0x03) {
-      byte pattern_buffer[128]; // This should be more than enough => @TODO: adjust.
-      int decode_size = size - 6; // size is 83 by default, minus 5 for the first 5 bytes we don't need, + 1 for the last sysex F7.
-      unsigned int outLength = midi::decodeSysEx(&sysex[5], pattern_buffer, decode_size); 
-      Serial.println(outLength, DEC);
+      byte pattern_data[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // = 67 = outLength
+      int decode_size = size - 6; // size is 83, -5 for the sysex header, -1 for the last sysex F7.
+      unsigned int outLength = midi::decodeSysEx(&sysex[5], pattern_data, decode_size);
 
-      Serial.println("Print buffer data");
+      Serial.println("Print pattern buffer data");
       for (unsigned index=0; index<outLength; index++) {
-        Serial.println(pattern_buffer[index], HEX);
+        Serial.println(pattern_data[index], HEX);
       }
       Serial.println("========================");
 
       // Write buffer data to memory
       Serial.println("Write buffer data to pattern");
-      unsigned int adress = OFFSET_PATTERN + pattern_buffer[0] * PTRN_SIZE_BYTE; // buffer[0] is the pattern number 0..255.
+      unsigned int address = OFFSET_PATTERN + pattern_data[0] * PTRN_SIZE_BYTE; // buffer[0] is the pattern number 0..255.
 
-      Wire_Begin_TX(adress); // Begin transmission at the address of the selected pattern.
+      Wire_Begin_TX(address); // Begin transmission at the address of the selected pattern.
 
-      for (char i=1; i<65; i++) {
-        Wire.write(pattern_buffer[i]);
+      for (char i=1; i<65; i++) { // Start at one, end after sending the 64 pattern bytes from the buffer.
+        Serial.println("Write buffer data to pattern");
+        Serial.println(i, DEC);
+        Serial.println(pattern_data[i], HEX);
+        Wire.write(pattern_data[i]);
       }
       Wire.endTransmission();
       delay(DELAY_WR); // Needed before we write another page.
+      Serial.println("========================");
 
-      adress = OFFSET_PATTERN_SETUP + pattern_buffer[0] * PTRN_SETUP_SIZE_BYTE;
-      Wire_Begin_TX(adress); // Start the transmission to the designated address.
-      Wire.write(pattern_buffer[65]); // Send the number of steps.
-      Wire.write(pattern_buffer[66]); // Send the scale of the pattern.
+      Serial.println("Time to send the pattern setup data");
+      address = OFFSET_PATTERN_SETUP + pattern_data[0] * PTRN_SETUP_SIZE_BYTE;
+      Wire_Begin_TX(address); // Start the transmission to the designated address.
+      Wire.write(pattern_data[65]); // Send the number of steps.
+      Wire.write(pattern_data[66]); // Send the scale of the pattern.
       Wire.endTransmission();
       delay(DELAY_WR); // Needed before we write another page.
+      Serial.println("========================");
 
+      // If we don't tell the selected pattern has changed, it will still play the old pattern
+      selected_pattern_changed=1;
+      
       // Celebrate with lightshow.
       Chenillard();
     }
