@@ -44,7 +44,7 @@
 
 #define MIDI_ACTIVITY_LED (1<<7)
 
-#define DEBUGG 0 // permet de debugger le programme via le moniteur serie d'arduino
+#define DEBUG 1 // Allow debugging the program with arduino serial monitor.
 #define DEBOUNCE 5 // debounce pour eviter les rebonds des boutons
 
 #define NBR_INST 16 //nombre d'instrument max

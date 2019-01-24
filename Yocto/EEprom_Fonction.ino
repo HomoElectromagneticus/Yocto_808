@@ -1,6 +1,9 @@
 //La library Wire a du etre modifier pour grossir le buffer jusqu'a 128 byte.
 //le fichier twi.h et wire.h on etait modifier : #define BUFFER_LENGTH 128
 
+#define PTRN_POSITION_BYTE (uint16_t)1  // 256 pattern positions represented by 1 byte. 
+
+
 #define PTRN_SIZE_BYTE (uint16_t)64  //deux octets pour 16 pas fois 16 instruments fois deux pour les deux parti 1a16 et 17a32 = 512/8
 #define PTRN_SETUP_SIZE_BYTE (uint16_t)2 //1 octet pour le nombre pas + 1 octet pour la scale
 #define PTRN_NB (uint16_t)256 // 16 * 16 
@@ -665,11 +668,15 @@ void Dump_EEprom()
     // 1. Dump all patterns one by one. (0x03)
     // --------------------------------
     // Loop over all patterns
+    // One pattern will be constructed as following:
+    // Position (1 byte) + Pattern Data (64 bytes) + Size (1 byte) + Scale (1 byte) = 67 bytes 
+    // Add to that + 3 bytes checksum + 10 (encoding)
+
     // TODO change 1 to PTRN_NB, just for testing
     for (int x=OFFSET_PATTERN; x<1; x++) { 
       Serial.println(x, DEC);
       Chenillard();
-      byte pattern[PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // 64+2
+      byte pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // 1+64+2
 
       // First take the actual pattern data.
       unsigned int address = OFFSET_PATTERN + x * PTRN_SIZE_BYTE;
@@ -678,28 +685,40 @@ void Dump_EEprom()
       // 1 pattern is 64 bytes. (4 bytes per 32 step instrument x 16)
       Wire.requestFrom(0x50,PTRN_SIZE_BYTE);
 
+      // Add positional info of the pattern.
+      pattern[0] = x; 
+
+      // Add the pattern data.
+      Serial.println("Reading pattern data");
+
       for (int y=0; y<PTRN_SIZE_BYTE; y++) {
-        Serial.println("Reading pattern");
-        Serial.println(y, DEC);
-        pattern[y] = Wire.read();    
-        Serial.println(pattern[y], BIN);
+        //Serial.println(y, DEC);
+        pattern[PTRN_POSITION_BYTE + y] = Wire.read();
+        //Serial.println(pattern[y], HEX);
       }
+
       // Next take 2 bytes from pattern setup data.
       address = OFFSET_PATTERN_SETUP + x * PTRN_SETUP_SIZE_BYTE;
-      Serial.println("address");
-      Serial.println(address, DEC);
       Wire_Begin_TX(address);
       Wire.endTransmission();
-      Wire.requestFrom(0x50,PTRN_SETUP_SIZE_BYTE);
-      pattern[PTRN_SIZE_BYTE] = Wire.read();  
-      Serial.println(pattern[PTRN_SIZE_BYTE], HEX);
-      pattern[PTRN_SIZE_BYTE + 1] = Wire.read();
-      Serial.println(pattern[PTRN_SIZE_BYTE + 1], HEX);
-      // Encode data.  66 = total size of pattern
-      unsigned int outLength = midi::encodeSysEx(pattern, buffer, PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE);
+      Wire.requestFrom(0x50, PTRN_SETUP_SIZE_BYTE);
+      pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE] = Wire.read();  
+      pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + 1] = Wire.read();
+
+      // Debug
+      if (1) {
+        Serial.println("Print transmitted data");
+        for (int y=0; y<(PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE); y++) {
+          Serial.println(pattern[y], HEX);
+        }
+        Serial.println("========================");
+      }
+
+      // Encode data.  67 = total size of pattern
+      unsigned int outLength = midi::encodeSysEx(pattern, buffer, PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE);
       Serial.println(outLength, DEC);
 
-      Serial.println("about to print the pattern");
+      Serial.println("about to print the encoded pattern");
       for (int z=0; z<outLength; z++) {
         Serial.println(pattern[z], HEX);
       }
@@ -744,10 +763,36 @@ void Receive_EEprom(const byte* sysex, unsigned size)
   if (sysex[1] == 0x7D && sysex[2] == 0x08 && sysex[3] == 0x08) {
     // 0x03 means we are receiving a pattern.
     if (sysex[4] == 0x03) {
-      for (unsigned index=0; index<size; index++) {
-        Serial.println(sysex[index], HEX);
+      byte pattern_buffer[128]; // This should be more than enough => @TODO: adjust.
+      int decode_size = size - 6; // size is 83 by default, minus 5 for the first 5 bytes we don't need, + 1 for the last sysex F7.
+      unsigned int outLength = midi::decodeSysEx(&sysex[5], pattern_buffer, decode_size); 
+      Serial.println(outLength, DEC);
+
+      Serial.println("Print buffer data");
+      for (unsigned index=0; index<outLength; index++) {
+        Serial.println(pattern_buffer[index], HEX);
       }
-      // Todo
+      Serial.println("========================");
+
+      // Write buffer data to memory
+      Serial.println("Write buffer data to pattern");
+      unsigned int adress = OFFSET_PATTERN + pattern_buffer[0] * PTRN_SIZE_BYTE; // buffer[0] is the pattern number 0..255.
+
+      Wire_Begin_TX(adress); // Begin transmission at the address of the selected pattern.
+
+      for (char i=1; i<65; i++) {
+        Wire.write(pattern_buffer[i]);
+      }
+      Wire.endTransmission();
+      delay(DELAY_WR); // Needed before we write another page.
+
+      adress = OFFSET_PATTERN_SETUP + pattern_buffer[0] * PTRN_SETUP_SIZE_BYTE;
+      Wire_Begin_TX(adress); // Start the transmission to the designated address.
+      Wire.write(pattern_buffer[65]); // Send the number of steps.
+      Wire.write(pattern_buffer[66]); // Send the scale of the pattern.
+      Wire.endTransmission();
+      delay(DELAY_WR); // Needed before we write another page.
+
       // Celebrate with lightshow.
       Chenillard();
     }

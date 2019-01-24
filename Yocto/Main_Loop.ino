@@ -437,20 +437,18 @@ void loop(){
       old_selected_mode = EEPROM_DUMP;
       Serial.println("EEPROM_DUMP");
     }
-
     if (button_shift) {
       Serial.println("Start Dump_EEpromm");
-
       Dump_EEprom();
     }
     break;
+
   case EEPROM_RECEIVE:
     Check_Edit_Button_Setup();
     if (old_selected_mode != EEPROM_RECEIVE) {
       old_selected_mode = EEPROM_RECEIVE;
       Serial.println("EEPROM_RECEIVE");
     }
-
     while (MIDI.read()) {
       if (MIDI.getType() >= 0xf0) // SysEX
       {
@@ -458,6 +456,7 @@ void loop(){
       }
     }
     break;
+
   }
   
 }
