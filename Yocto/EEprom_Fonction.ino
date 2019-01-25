@@ -655,49 +655,46 @@ void Initialize_EEprom()
 void Dump_EEprom()
 {
   if (button_shift) {
-    button_shift=0; // Prevent the loop from running twice
-    Chenillard();
-
-    byte start[5] = {0xF0, 0x7D, 0x08, 0x08, 0x03};
-
-    byte stop[1] = {0xF7};
-    byte buffer[128]; // This should be more than enough.
+    button_shift=0; // Prevent the loop from running twice.
+    Chenillard(); // Light show to show that we are about to begin.
     
-    Serial.println("Run through mem");
+    byte header[5] = {0xF0, 0x7D, 0x08, 0x08, 0x00}; // SysEx header.
+    byte stop[1] = {0xF7}; // SysEx end.
+    int temp = 0; // Variable for LEDs.
 
-    // 1. Dump all patterns one by one. (0x03)
+    // 1. Dump all patterns one by one.
     // --------------------------------
-    // Loop over all patterns
     // One pattern will be constructed as following:
-    // Position (1 byte) + Pattern Data (64 bytes) + Size (1 byte) + Scale (1 byte) = 67 bytes 
-    // Add to that + 3 bytes checksum + 10 (encoding)
+    // Position (1 byte) + Pattern steps (64 bytes) + Size (1 byte) + Scale (1 byte) = 67 bytes.
+    // This data will get encoded (10 bytes) and a SRC-8 checksum (1 byte) will be added.
+    // Then the whole thing will be wrapped with the SysEx header and end (6 bytes) and sent over midi (total: 84 bytes).
+    header[4] = 0x03; // SysEx Pattern data identifier.
+    byte buffer[78];
+    for (int x=0; x<PTRN_NB; x++) { // Loop over all patterns
+      byte pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // This will hold the pattern data.
 
-    // TODO change 1 to PTRN_NB, just for testing
-    for (int x=OFFSET_PATTERN; x<1; x++) { 
-      Serial.println(x, DEC);
-      Chenillard();
-      byte pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // 1+64+2
+      // Show the current bank position on the LEDs.
+      temp|=1<<(x/16);
+      SR.Led_Step_Write(temp);
+      // Show the current pattern position on the LEDs.
+      temp|=1<<(x%16);
+      SR.Led_Step_Write(temp);
 
-      // First take the actual pattern data.
+      // First add the pattern position.
+      pattern[0] = x; 
+
+      // Next read the actual pattern steps.
       unsigned int address = OFFSET_PATTERN + x * PTRN_SIZE_BYTE;
       Wire_Begin_TX(address);
       Wire.endTransmission();
-      // 1 pattern is 64 bytes. (4 bytes per 32 step instrument x 16)
-      Wire.requestFrom(0x50,PTRN_SIZE_BYTE);
+      Wire.requestFrom(0x50, PTRN_SIZE_BYTE);
 
-      // Add positional info of the pattern.
-      pattern[0] = x; 
-
-      // Add the pattern data.
-      Serial.println("Reading pattern data");
-
+      // Add the pattern steps.
       for (int y=0; y<PTRN_SIZE_BYTE; y++) {
-        //Serial.println(y, DEC);
         pattern[PTRN_POSITION_BYTE + y] = Wire.read();
-        //Serial.println(pattern[y], HEX);
       }
 
-      // Next take 2 bytes from pattern setup data.
+      // Next read and add 2 bytes from pattern setup data (size and scale).
       address = OFFSET_PATTERN_SETUP + x * PTRN_SETUP_SIZE_BYTE;
       Wire_Begin_TX(address);
       Wire.endTransmission();
@@ -705,40 +702,46 @@ void Dump_EEprom()
       pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE] = Wire.read();  
       pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + 1] = Wire.read();
 
-      // Debug
-      if (1) {
-        Serial.println("Print transmitted data");
+      // Debug.
+      if (0) {
+        Serial.println("Print raw pattern data");
         for (int y=0; y<(PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE); y++) {
           Serial.println(pattern[y], HEX);
         }
         Serial.println("========================");
       }
 
-      // Encode data.  67 = total size of pattern
-      unsigned int outLength = midi::encodeSysEx(pattern, buffer, PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE);
-      Serial.println(outLength, DEC);
+      // Encode data.  67 bytes = total size of pattern, encoded this will give 77 bytes
+      unsigned int length = midi::encodeSysEx(pattern, buffer, PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE);
 
-      Serial.println("about to print the encoded pattern");
-      for (int z=0; z<outLength; z++) {
-        Serial.println(pattern[z], HEX);
+      // Add CRC-8 checksum, constricted to 7 bits.
+      buffer[length] = calc_CRC8(buffer, length);
+      buffer[length] &= 0x7F;
+
+      // Debug.
+      if (0) {
+        Serial.println("Print encoded pattern data");
+        for (int y=0; y<length; y++) {
+          Serial.println(buffer[y], HEX);
+        }
+        Serial.println("========================");
       }
-      // Send start and manufacturer ID
-      MIDI.sendSysEx(5, start, true);
-      // Send data.
-      Serial.println("SEnd sysex");
-      MIDI.sendSysEx(outLength, buffer, true);
-      // Send end.
-      Serial.println("send end");
-      MIDI.sendSysEx(1, stop, true);
+      MIDI.sendSysEx(5, header, true); // Send start and manufacturer ID
+      MIDI.sendSysEx(length + 1, buffer, true); // Send data.
+      MIDI.sendSysEx(1, stop, true); // Send end.
+
+      SR.Led_Step_Write(0); // Disable the LEDs.
     }
     
-    // 2. Send songs (ID 0x05)
+    // 2. Send songs.
     // @TODO
+    header[4] = 0x05; // SysEx Song data identifier.
 
-    // 3. Send config (ID 0x06)
+    // 3. Send config.
     // @TODO
+    header[4] = 0x06; // Config data identifier.
 
-    // Temp lightshow to indicate we done
+    // Lightshow to indicate we are done
     Chenillard();
   }
   button_shift=0; // Prevent the loop from running twice
@@ -760,55 +763,63 @@ void Receive_EEprom(const byte* sysex, unsigned size)
 
   // Check if the sysex is meant for yocto.
   if (sysex[1] == 0x7D && sysex[2] == 0x08 && sysex[3] == 0x08) {
-    // 0x03 means we are receiving a pattern.
-    if (sysex[4] == 0x03) {
-      byte pattern_data[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // = 67 = outLength
-      int decode_size = size - 6; // size is 83, -5 for the sysex header, -1 for the last sysex F7.
-      unsigned int outLength = midi::decodeSysEx(&sysex[5], pattern_data, decode_size);
+    if (sysex[4] == 0x03) { // Pattern data.
+      byte pattern_data[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE];
+      int decode_size = 77; // @See encodeSysEx in Dump_EEprom.
+      int temp; // Variable for LEDs.
+      unsigned int length = midi::decodeSysEx(&sysex[5], pattern_data, decode_size);
 
-      Serial.println("Print pattern buffer data");
-      for (unsigned index=0; index<outLength; index++) {
-        Serial.println(pattern_data[index], HEX);
+      // Calculate CRC-8 checksum, constricted to 7 bits.
+      unsigned char checksum = calc_CRC8((uint8_t *) &sysex[5], decode_size);
+      checksum &= 0x7F;
+
+      // Only continue if the checksum matches. 82 = 5 (header) + 77 (encoded data).
+      if (checksum == sysex[82]) {
+
+        // Debug.
+        if (0) {
+          Serial.println("Print pattern buffer data");
+          for (unsigned i=0; i<length; i++) {
+            Serial.println(pattern_data[i], HEX);
+          }
+          Serial.println("========================");
+        }
+
+        // Show the current bank position on the LEDs.
+        temp|=1<<(pattern_data[0]/16);
+        SR.Led_Step_Write(temp);
+        // Show the current pattern position on the LEDs.
+        temp|=1<<(pattern_data[0]%16);
+        SR.Led_Step_Write(temp);
+
+        // Write pattern steps to memory.
+        unsigned int address = OFFSET_PATTERN + pattern_data[0] * PTRN_SIZE_BYTE; // pattern_data[0] is the pattern number 0..255.
+        Wire_Begin_TX(address); 
+
+        for (char i=1; i<65; i++) { // Start at one, end after sending the 64 pattern bytes from the buffer.
+          Wire.write(pattern_data[i]);
+        }
+        Wire.endTransmission();
+        delay(DELAY_WR); // Needed before we write another page.
+
+        // Write pattern setup to memory.
+        address = OFFSET_PATTERN_SETUP + pattern_data[0] * PTRN_SETUP_SIZE_BYTE;
+        Wire_Begin_TX(address); // Start the transmission to the designated address.
+        Wire.write(pattern_data[65]); // Send the number of steps.
+        Wire.write(pattern_data[66]); // Send the scale of the pattern.
+        Wire.endTransmission();
+        delay(DELAY_WR); // Needed before we write another page.
+
+        // If we don't tell the selected pattern has changed, it will still play the old pattern
+        selected_pattern_changed=1;   
+
+        SR.Led_Step_Write(0); // Disable the LEDs.   
       }
-      Serial.println("========================");
-
-      // Write buffer data to memory
-      Serial.println("Write buffer data to pattern");
-      unsigned int address = OFFSET_PATTERN + pattern_data[0] * PTRN_SIZE_BYTE; // buffer[0] is the pattern number 0..255.
-
-      Wire_Begin_TX(address); // Begin transmission at the address of the selected pattern.
-
-      for (char i=1; i<65; i++) { // Start at one, end after sending the 64 pattern bytes from the buffer.
-        Serial.println("Write buffer data to pattern");
-        Serial.println(i, DEC);
-        Serial.println(pattern_data[i], HEX);
-        Wire.write(pattern_data[i]);
-      }
-      Wire.endTransmission();
-      delay(DELAY_WR); // Needed before we write another page.
-      Serial.println("========================");
-
-      Serial.println("Time to send the pattern setup data");
-      address = OFFSET_PATTERN_SETUP + pattern_data[0] * PTRN_SETUP_SIZE_BYTE;
-      Wire_Begin_TX(address); // Start the transmission to the designated address.
-      Wire.write(pattern_data[65]); // Send the number of steps.
-      Wire.write(pattern_data[66]); // Send the scale of the pattern.
-      Wire.endTransmission();
-      delay(DELAY_WR); // Needed before we write another page.
-      Serial.println("========================");
-
-      // If we don't tell the selected pattern has changed, it will still play the old pattern
-      selected_pattern_changed=1;
-      
-      // Celebrate with lightshow.
-      Chenillard();
     }
-    // 0x05 means we are receiving a song.
-    else if (sysex[4] == 0x05) {
+    else if (sysex[4] == 0x05) { // Song data.
       // TODO.
     }
-    // 0x 06 means we are receiving config.
-    else if (sysex[4] == 0x06) {
+    else if (sysex[4] == 0x06) { // Config data.
       // TODO.
     }
   }
