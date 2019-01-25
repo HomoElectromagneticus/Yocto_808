@@ -679,6 +679,7 @@ void Dump_EEprom()
       // Show the current pattern position on the LEDs.
       temp|=1<<(x%16);
       SR.Led_Step_Write(temp);
+      delay(30);
 
       // First add the pattern position.
       pattern[0] = x; 
