@@ -8,8 +8,8 @@
 #define SONG_MIDI_SLAVE     6
 #define SONG_EDIT           7
 #define MIDI_PLAY           8 // Expander
-#define EEPROM_DUMP         9 // Dump memory with SysEx ([Track] on elsmurf case)
-#define EEPROM_RECEIVE     10 // Receive memory with SysEx
+#define EEPROM_RECEIVE      9 // Receive memory with SysEx
+#define EEPROM_DUMP        10 // Dump memory with SysEx ([Track] on elsmurf case)
 #define INIT_EEPROM        11
 #define CLEAR_SONG         12
 #define CLEAR_PATTERN      13
