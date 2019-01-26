@@ -44,7 +44,7 @@
 
 #define MIDI_ACTIVITY_LED (1<<7)
 
-#define DEBUG 1 // Allow debugging the program with arduino serial monitor.
+#define DEBUG 0 // Allow debugging the program with arduino serial monitor.
 #define DEBOUNCE 5 // debounce pour eviter les rebonds des boutons
 
 #define NBR_INST 16 //nombre d'instrument max
@@ -267,8 +267,6 @@ void defNotes() {
 }
 
 // Initialize midi.
-//MIDI_CREATE_DEFAULT_INSTANCE();
-//MIDI_CREATE_INSTANCE(SoftwareSerial, Serial1, MIDI)
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 
@@ -298,13 +296,11 @@ void setup() {
   timer_time =((unsigned int)(2500000/bpm));
   Timer1.initialize(timer_time); // set a timer of length in microseconds 
 
-  //Initialise les liaisons serie
-  Serial.begin(115200); //liaison  serie pour debugger
-  delay(10);
+  // Initialise serial connection for debugger.
+  Serial.begin(115200);
 
   // Midi
   MIDI.begin(MIDI_CHANNEL_OMNI); 
-
 
   defNotes();
 

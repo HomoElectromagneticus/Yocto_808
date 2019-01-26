@@ -2,8 +2,6 @@
 //le fichier twi.h et wire.h on etait modifier : #define BUFFER_LENGTH 128
 
 #define PTRN_POSITION_BYTE (uint16_t)1  // 256 pattern positions represented by 1 byte. 
-
-
 #define PTRN_SIZE_BYTE (uint16_t)64  //deux octets pour 16 pas fois 16 instruments fois deux pour les deux parti 1a16 et 17a32 = 512/8
 #define PTRN_SETUP_SIZE_BYTE (uint16_t)2 //1 octet pour le nombre pas + 1 octet pour la scale
 #define PTRN_NB (uint16_t)256 // 16 * 16 
@@ -545,7 +543,7 @@ void Initialize_EEprom()
     button_init=0;//reinitialise le bouton init pour eviter que la loop se fasse deux fois
 
 
-    //loop autant de fois que de nombre de pattern (256)
+    //loop autant de fois que de nombre de pattern
     for ( x=0; x< PTRN_NB ;x++){
 
       unsigned int adress = OFFSET_PATTERN + x * PTRN_SIZE_BYTE;
@@ -752,12 +750,9 @@ void Receive_EEprom(const byte* sysex, unsigned size)
 
       // Only continue if the checksum matches. 82 = 5 (header) + 77 (encoded data).
       if (checksum == sysex[82]) {
-
-        // Show the current bank position on the LEDs.
-        temp_step_led|=1<<(pattern_data[0]/16);
-        //SR.Led_Step_Write(temp);
-        // Show the current pattern position on the LEDs.
-        temp_step_led|=1<<(pattern_data[0]%16);
+        
+        temp_step_led|=1<<(pattern_data[0]/16); // Show the current bank position on the LEDs.
+        temp_step_led|=1<<(pattern_data[0]%16); // Show the current pattern position on the LEDs.
         SR.Led_Step_Write(temp_step_led);
 
         // Write pattern steps to memory.
