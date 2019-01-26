@@ -301,9 +301,6 @@ void setup() {
   //Initialise les liaisons serie
   Serial.begin(115200); //liaison  serie pour debugger
   delay(10);
-  Serial.println("abcdefghijklmnopqrstuvwxyz");delay(10);
-  Serial.println("qwerty");delay(10);
-  Serial.println("Initialized serial");delay(10);
 
   // Midi
   MIDI.begin(MIDI_CHANNEL_OMNI); 
