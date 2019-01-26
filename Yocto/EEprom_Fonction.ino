@@ -654,13 +654,11 @@ void Initialize_EEprom()
 
 void Dump_EEprom()
 {
-  if (button_shift) {
+  if (button_play) {
     button_shift=0; // Prevent the loop from running twice.
-    Chenillard(); // Light show to show that we are about to begin.
     
     byte header[5] = {0xF0, 0x7D, 0x08, 0x08, 0x00}; // SysEx header.
     byte stop[1] = {0xF7}; // SysEx end.
-    int temp = 0; // Variable for LEDs.
 
     // 1. Dump all patterns one by one.
     // --------------------------------
@@ -673,13 +671,10 @@ void Dump_EEprom()
     for (int x=0; x<PTRN_NB; x++) { // Loop over all patterns
       byte pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // This will hold the pattern data.
 
-      // Show the current bank position on the LEDs.
-      temp|=1<<(x/16);
-      SR.Led_Step_Write(temp);
-      // Show the current pattern position on the LEDs.
-      temp|=1<<(x%16);
-      SR.Led_Step_Write(temp);
-      delay(30);
+      temp_step_led = 0;
+      temp_step_led|=1<<(x/16); // Show the current bank position on the LEDs.
+      temp_step_led|=1<<(x%16); // Show the current pattern position on the LEDs.
+      SR.Led_Step_Write(temp_step_led);
 
       // First add the pattern position.
       pattern[0] = x; 
@@ -703,15 +698,6 @@ void Dump_EEprom()
       pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE] = Wire.read();  
       pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + 1] = Wire.read();
 
-      // Debug.
-      if (0) {
-        Serial.println("Print raw pattern data");
-        for (int y=0; y<(PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE); y++) {
-          Serial.println(pattern[y], HEX);
-        }
-        Serial.println("========================");
-      }
-
       // Encode data.  67 bytes = total size of pattern, encoded this will give 77 bytes
       unsigned int length = midi::encodeSysEx(pattern, buffer, PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE);
 
@@ -719,14 +705,6 @@ void Dump_EEprom()
       buffer[length] = calc_CRC8(buffer, length);
       buffer[length] &= 0x7F;
 
-      // Debug.
-      if (0) {
-        Serial.println("Print encoded pattern data");
-        for (int y=0; y<length; y++) {
-          Serial.println(buffer[y], HEX);
-        }
-        Serial.println("========================");
-      }
       MIDI.sendSysEx(5, header, true); // Send start and manufacturer ID
       MIDI.sendSysEx(length + 1, buffer, true); // Send data.
       MIDI.sendSysEx(1, stop, true); // Send end.
@@ -745,13 +723,11 @@ void Dump_EEprom()
     // Lightshow to indicate we are done
     Chenillard();
   }
-  button_shift=0; // Prevent the loop from running twice
+  button_play=0; // Prevent the loop from running twice
 }
 
 void Receive_EEprom(const byte* sysex, unsigned size) 
 {
-  Serial.println("In Receive_EEprom");
-
   // If this isn't sysex, what are we even doing here?
   if (sysex[0] != 0xF0) {
     return;
@@ -767,7 +743,7 @@ void Receive_EEprom(const byte* sysex, unsigned size)
     if (sysex[4] == 0x03) { // Pattern data.
       byte pattern_data[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE];
       int decode_size = 77; // @See encodeSysEx in Dump_EEprom.
-      int temp; // Variable for LEDs.
+      temp_step_led = 0; // Variable for LEDs.
       unsigned int length = midi::decodeSysEx(&sysex[5], pattern_data, decode_size);
 
       // Calculate CRC-8 checksum, constricted to 7 bits.
@@ -777,21 +753,12 @@ void Receive_EEprom(const byte* sysex, unsigned size)
       // Only continue if the checksum matches. 82 = 5 (header) + 77 (encoded data).
       if (checksum == sysex[82]) {
 
-        // Debug.
-        if (0) {
-          Serial.println("Print pattern buffer data");
-          for (unsigned i=0; i<length; i++) {
-            Serial.println(pattern_data[i], HEX);
-          }
-          Serial.println("========================");
-        }
-
         // Show the current bank position on the LEDs.
-        temp|=1<<(pattern_data[0]/16);
-        SR.Led_Step_Write(temp);
+        temp_step_led|=1<<(pattern_data[0]/16);
+        //SR.Led_Step_Write(temp);
         // Show the current pattern position on the LEDs.
-        temp|=1<<(pattern_data[0]%16);
-        SR.Led_Step_Write(temp);
+        temp_step_led|=1<<(pattern_data[0]%16);
+        SR.Led_Step_Write(temp_step_led);
 
         // Write pattern steps to memory.
         unsigned int address = OFFSET_PATTERN + pattern_data[0] * PTRN_SIZE_BYTE; // pattern_data[0] is the pattern number 0..255.
@@ -813,8 +780,6 @@ void Receive_EEprom(const byte* sysex, unsigned size)
 
         // If we don't tell the selected pattern has changed, it will still play the old pattern
         selected_pattern_changed=1;   
-
-        SR.Led_Step_Write(0); // Disable the LEDs.   
       }
     }
     else if (sysex[4] == 0x05) { // Song data.

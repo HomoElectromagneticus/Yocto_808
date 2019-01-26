@@ -437,7 +437,7 @@ void loop(){
       old_selected_mode = EEPROM_DUMP;
       Serial.println("EEPROM_DUMP");
     }
-    if (button_shift) {
+    if (button_play) {
       Serial.println("Start Dump_EEpromm");
       Dump_EEprom();
     }
@@ -455,6 +455,7 @@ void loop(){
         Receive_EEprom(MIDI.getSysExArray(), MIDI.getSysExArrayLength());
       }
     }
+    SR.Led_Step_Write(0); // Disable the LEDs.   
     break;
 
   }
