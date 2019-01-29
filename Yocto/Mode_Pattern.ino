@@ -143,8 +143,8 @@ void Mode_Pattern(){
       //Mode Pattern Edit
       //==============================================================================================================
       if(selected_mode==PATTERN_EDIT){
-        if(play){//si seq en run 
-          if (button_shift){//si bouton shift appuyer
+        if(play){//si seq en run
+          if (button_pattern_part_pressed){ // If we are pressing the pattern part 0-16/17-32 buttons.
             // loop as many times as the step button is 16
             for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
               if (bitRead (step_button_state,i)){
@@ -156,7 +156,7 @@ void Mode_Pattern(){
               }
             }
           }
-          // if shift button not pressed, we return the value of buttons in the edited pattern
+          // if the pattern parts buttons not pressed, we return the value of buttons in the edited pattern
           else{
             // flag for if the pattern was changed since last save
             selected_pattern_edited=1;
@@ -225,8 +225,45 @@ void Mode_Pattern(){
   pattern_nbr = selected_pattern+(16*pattern_bank);//le numero du pattern est egal au pattern selectionner plus 16 fois la bank soit 255 pattern
 
   //====================================================================
+  // Tap entry.
+  if (play && (selected_mode == PATTERN_EDIT)) {
+    if (button_shift && (last_button_shift != button_shift)) {
+      // Quantising strategy:
+      // If tap is entered on the last 2 clock ticks of a step,
+      // we move the resulting step forward.
+      if (! (ppqn_count%5 == 0) || (ppqn_count%6 == 0)) {
+        if (step_count < 16) {
+          bitSet(pattern[pattern_buffer][selected_inst][0], step_count);
+        }
+        else if (step_count>=16) {
+          bitSet(pattern[pattern_buffer][selected_inst][1], step_count-16);
+        }
+      }
+      else { // Tap was late => move step forward.
+        if (step_count < 15) {
+          bitSet(pattern[pattern_buffer][selected_inst][0], step_count+1);
+        }
+        else if (step_count == 31) {
+          bitSet(pattern[pattern_buffer][selected_inst][0], 0);
+        }
+        else if (step_count>=15){
+          bitSet(pattern[pattern_buffer][selected_inst][1], step_count-15);
+        }
+      }
+      // Some magic to play the actual sound.
+      SR.Inst_Send(1<<selected_inst);
+      PORTB |= (1<<2);
+      delayMicroseconds(10);
+      PORTB &= ~(1<<2);
+      // Make sure the change is saved.
+      selected_pattern_edited=1;
+      selected_pattern_edited_saved=1;
+    }
+    last_button_shift = button_shift; // Store prev shift value.
+  }
   //fonction clear avec le bouton de l'encoder
   //clear le pas en train etre jouer quand on appuie dessus
+  //hmm this code runs when a pattern isn't even playing? could use refactoring.
   if (button_encoder && selected_mode==PATTERN_EDIT){
     if(step_count<16){
       bitClear(pattern[pattern_buffer][selected_inst][0], step_count);
