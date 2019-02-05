@@ -18,16 +18,14 @@ void loop(){
     }
     if (old_selected_mode==PATTERN_MIDI_SLAVE){
       MIDI.read();
-      Check_Edit_Button_Pattern();
     }
     else if (old_selected_mode==PATTERN_DIN_SLAVE){
-      Check_Edit_Button_Pattern();
+      // No action needed for DinSync.
     }
     else{
       Check_BPM();
-      Check_Edit_Button_Pattern();
     }
-
+    Check_Edit_Button_Pattern();
     Check_Roll_Scale();
     Check_Edit_Button_Pattern();
     TestTapeTempo();   
@@ -47,18 +45,13 @@ void loop(){
       inst_mute=0;
       //Serial.println("initilaize_PTR Din Slave");
     }
-    //Serial.println (step_count,DEC); 
     if (old_selected_mode==PATTERN_MIDI_MASTER){
       Check_BPM();
-      Check_Edit_Button_Pattern();
     }
     else if (old_selected_mode==PATTERN_MIDI_SLAVE){
       MIDI.read();
-      Check_Edit_Button_Pattern();
     }
-    else{
-      Check_Edit_Button_Pattern();
-    }
+    Check_Edit_Button_Pattern();
     Check_Roll_Scale();
     Mode_Pattern();
     Update_Pattern_EEprom();
@@ -82,15 +75,14 @@ void loop(){
     }
     if (old_selected_mode==PATTERN_MIDI_MASTER) {
       Check_BPM();
-      Check_Edit_Button_Pattern();
     }
     else if (old_selected_mode==PATTERN_DIN_SLAVE) {
-      Check_Edit_Button_Pattern();
+      // No action needed for DinSync.
     }
     else {
       MIDI.read();
-      Check_Edit_Button_Pattern();
     }
+    Check_Edit_Button_Pattern();
     Check_Roll_Scale();
     Mode_Pattern();
     Update_Pattern_EEprom();
@@ -101,27 +93,26 @@ void loop(){
     //=================================================
   case PATTERN_EDIT:
     // INIT----------------------------------------
-    if((old_selected_mode!=PATTERN_EDIT) &&!play){
+    if (old_selected_mode!=PATTERN_EDIT) {
       old_selected_mode=PATTERN_EDIT;
-      Disconnect_Callback();
-      Mode_Synchro(0);//mode master synchro
-      if(mute_mode)mute_mode=0;
-      /*if(play){
-       play=0;
-       MIDI_Send(0xfc);//envoi un stop midi
-       PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
-       button_play_count=0;
-       }*/
-      inst_mute=0;
-      roll_mode=0;
-      //TapeTempoInit();
+      if(!play){
+        Disconnect_Callback();
+        Mode_Synchro(0);//mode master synchro
+        if(mute_mode)mute_mode=0;
+        inst_mute=0;
+        roll_mode=0;
+      }
     }
-    if(old_selected_mode==PATTERN_MIDI_MASTER || old_selected_mode==PATTERN_EDIT){
+    if (sync_mode == MASTER) {
       Check_BPM();
     }
-    else if (old_selected_mode==PATTERN_MIDI_SLAVE){
+    else if (sync_mode == DIN_SLAVE) {
+      // No action needed for DinSync.
+    }
+    else if (sync_mode == MIDI_SLAVE) {
       MIDI.read();
     }
+
     Check_Edit_Button_Pattern_Edit();
     //    Timer1.initialize(timer_time); // set a timer of length in microseconds 
     //Serial.println(timer_time);
