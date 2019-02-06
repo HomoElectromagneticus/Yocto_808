@@ -228,33 +228,49 @@ void Mode_Pattern(){
   // Tap entry.
   if (play && (selected_mode == PATTERN_EDIT)) {
     if (button_shift && (last_button_shift != button_shift)) {
+
       // Quantising strategy:
-      // If tap is entered on the last 2 clock ticks of a step,
-      // we move the resulting step forward.
-      if (! (ppqn_count%5 == 0) || (ppqn_count%6 == 0)) {
+      // TL;DR: If tap is entered late, we move the entered step forward.
+      // This needs some explanation, we can have 4 different scales here.
+      // E.g. in a normal 24ppqn 16step pattern, ppqn 0,6,12,18 represents the start of a step.
+      // Ticks 0,1,2,3 are fine, but anything entered on tick 4 or 5 should be pushed to the next step.
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      // 1/32 means 12ppqn, 3 pulses per step, keep 2, push 1 
+      // 1/16 means 24ppqn, 6 pulses per step, keep 4, push 2 
+      // 1/16t means 16ppqn, 4 pulses per step, keep 3, push 1 
+      // 1/8t means 32ppqn, 8 pulses per step, keep 6, push 2 
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      // Still following? Me neither..
+      // There most likely is a more logical way to do it, but the maths below seem to work for these cases.
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+      // Check if we can place the note on the current step:
+      if (ppqn_count%(pattern_scale[pattern_buffer]/4) < (int) (pattern_scale[pattern_buffer]/16)*3) {
         if (step_count < 16) {
           bitSet(pattern[pattern_buffer][selected_inst][0], step_count);
         }
-        else if (step_count>=16) {
+        else {
           bitSet(pattern[pattern_buffer][selected_inst][1], step_count-16);
         }
+        // Some magic to play the actual sound.
+        // We don't play the actual sound in the case it is pushed to the next step, 
+        // as it will play properly already by default once the step starts!
+        SR.Inst_Send(1<<selected_inst);
+        PORTB |= (1<<2);
+        delayMicroseconds(10);
+        PORTB &= ~(1<<2);
       }
-      else { // Tap was late => move step forward.
+      else { // We need to push the note to the next step.
         if (step_count < 15) {
           bitSet(pattern[pattern_buffer][selected_inst][0], step_count+1);
         }
-        else if (step_count == 31) {
+        else if (step_count+1 == nbr_step[pattern_buffer]) { // Last step
           bitSet(pattern[pattern_buffer][selected_inst][0], 0);
         }
-        else if (step_count>=15){
+        else {
           bitSet(pattern[pattern_buffer][selected_inst][1], step_count-15);
         }
       }
-      // Some magic to play the actual sound.
-      SR.Inst_Send(1<<selected_inst);
-      PORTB |= (1<<2);
-      delayMicroseconds(10);
-      PORTB &= ~(1<<2);
       // Make sure the change is saved.
       selected_pattern_edited=1;
       selected_pattern_edited_saved=1;
