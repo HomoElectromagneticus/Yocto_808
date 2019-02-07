@@ -31,7 +31,7 @@ void Check_Edit_Button_Pattern_Edit()
         //----------------------
         //check le bouton play
       case 1:
-        if(old_selected_mode==0 || old_selected_mode==3){ // PATTERN_MIDI_MASTER || PATTERN_EDIT
+        if(old_selected_mode==0 || old_selected_mode==3){
           button_play_count++;
           if(button_play_count==1){
             play=1;
