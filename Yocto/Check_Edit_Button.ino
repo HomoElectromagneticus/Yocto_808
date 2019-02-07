@@ -70,12 +70,15 @@ void Check_Edit_Button_Pattern_Edit()
       if (edit_button_state==24){
         button_part_switch =!button_part_switch;
       }
+
+      // If both Shift and Encoder button are pressed, button_state is 34.
+
       // Shift button.
-      if (edit_button_state==2) button_shift=1;//bouton shift appuyer
-      else button_shift=0;//bouton shift relacher
+      if (edit_button_state==2 || edit_button_state==34) button_shift=1;
+      else button_shift=0;
 
       // Encoder button.
-      if (edit_button_state==32) button_encoder=1;
+      if (edit_button_state==32 || edit_button_state==34) button_encoder=1;
       else button_encoder=0;
 
       // Check if the pattern part is pressed.
