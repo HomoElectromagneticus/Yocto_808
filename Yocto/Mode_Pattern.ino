@@ -225,79 +225,92 @@ void Mode_Pattern(){
   pattern_nbr = selected_pattern+(16*pattern_bank);//le numero du pattern est egal au pattern selectionner plus 16 fois la bank soit 255 pattern
 
   //====================================================================
-  // Tap entry.
-  if (play && (selected_mode == PATTERN_EDIT)) {
-    if (button_shift && (last_button_shift != button_shift)) {
+  // Functions for pattern edit mode
+  if (selected_mode == PATTERN_EDIT) {
 
-      // Quantising strategy:
-      // TL;DR: If a tap is "late", we register it on the next step.
-      //
-      // What defines "late"? We have to consider the 4 different scales..
-      // By careful probing of a TR-606 (which also has tap mode) it seems Roland did the following:
-      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      // Scale  |  PPQN  |  Pulses/Step  |  Amount of pulses not "late"
-      // 1/16   |  24    |  6            |  3
-      // 1/32   |  12    |  3            |  1
-      // 1/8t   |  32    |  8            |  4
-      // 1/16t  |  16    |  4            |  2
-      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      // The code below "scales" the current ppqn count down to Pulses/step,
-      // And checks if the result is smaller than the amount of pulses not "late".
-      // The maths below for pulses not "late" seem to work for all cases.
-      // There most likely is a more elegant way.
-      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      // Check if we can place the note on the current step:
-      if (ppqn_count%(pattern_scale[pattern_buffer]/4) < (int) (pattern_scale[pattern_buffer]/8)) {
-        if (step_count < 16) {
-          bitSet(pattern[pattern_buffer][selected_inst][0], step_count);
+    if (play) {
+
+      // Real-time clearing of steps with the encoder button.
+      if (button_encoder) {
+        if (button_shift) {
+          // Clear the full row of steps for instrument. 
+          pattern[pattern_buffer][selected_inst][0]=0;
+          pattern[pattern_buffer][selected_inst][1]=0;
         }
         else {
-          bitSet(pattern[pattern_buffer][selected_inst][1], step_count-16);
+          // Clear only the steps that are playing.
+          if (step_count<16) {
+            bitClear(pattern[pattern_buffer][selected_inst][0], step_count);
+          }
+          else if (step_count>=16) {
+            bitClear(pattern[pattern_buffer][selected_inst][1], step_count-16);
+          }
         }
-        // Some magic to play the actual sound.
-        // We don't play the actual sound in the case it is pushed to the next step, 
-        // as it will play properly already by default once the step starts!
-        SR.Inst_Send(1<<selected_inst);
-        PORTB |= (1<<2);
-        delayMicroseconds(10);
-        PORTB &= ~(1<<2);
+        selected_pattern_edited=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
+        selected_pattern_edited_saved=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
       }
-      else { // We need to push the note to the next step.
-        if (step_count < 15) {
-          bitSet(pattern[pattern_buffer][selected_inst][0], step_count+1);
+
+      // TAP step entry.
+      if (button_shift && (last_button_shift != button_shift)) {
+
+        // Quantising strategy:
+        // TL;DR: If a tap is "late", we register it on the next step.
+        //
+        // What defines "late"? We have to consider the 4 different scales..
+        // By careful probing of a TR-606 (which also has tap mode) it seems Roland did the following:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Scale  |  PPQN  |  Pulses/Step  |  Amount of pulses not "late"
+        // 1/16   |  24    |  6            |  3
+        // 1/32   |  12    |  3            |  1
+        // 1/8t   |  32    |  8            |  4
+        // 1/16t  |  16    |  4            |  2
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // The code below "scales" the current ppqn count down to Pulses/step,
+        // And checks if the result is smaller than the amount of pulses not "late".
+        // The maths below for pulses not "late" seem to work for all cases.
+        // There most likely is a more elegant way.
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Check if we can place the note on the current step:
+        if (ppqn_count%(pattern_scale[pattern_buffer]/4) < (int) (pattern_scale[pattern_buffer]/8)) {
+          if (step_count<16) {
+            bitSet(pattern[pattern_buffer][selected_inst][0], step_count);
+          }
+          else {
+            bitSet(pattern[pattern_buffer][selected_inst][1], step_count-16);
+          }
+          // Some magic to play the actual sound.
+          // We don't play the actual sound in the case it is pushed to the next step,
+          // as it will play properly already by default once the step starts!
+          SR.Inst_Send(1<<selected_inst);
+          PORTB |= (1<<2);
+          delayMicroseconds(10);
+          PORTB &= ~(1<<2);
         }
-        else if (step_count+1 == nbr_step[pattern_buffer]) { // Last step
-          bitSet(pattern[pattern_buffer][selected_inst][0], 0);
+        else { // We need to push the note to the next step.
+          if (step_count<15) {
+            bitSet(pattern[pattern_buffer][selected_inst][0], step_count+1);
+          }
+          else if (step_count+1 == nbr_step[pattern_buffer]) { // Last step
+            bitSet(pattern[pattern_buffer][selected_inst][0], 0);
+          }
+          else {
+            bitSet(pattern[pattern_buffer][selected_inst][1], step_count-15);
+          }
         }
-        else {
-          bitSet(pattern[pattern_buffer][selected_inst][1], step_count-15);
-        }
+        // Make sure the change is saved.
+        selected_pattern_edited=1;
+        selected_pattern_edited_saved=1;
       }
-      // Make sure the change is saved.
-      selected_pattern_edited=1;
-      selected_pattern_edited_saved=1;
+      last_button_shift = button_shift; // Store prev shift value.
     }
-    last_button_shift = button_shift; // Store prev shift value.
   }
-  //fonction clear avec le bouton de l'encoder
-  //clear le pas en train etre jouer quand on appuie dessus
-  //hmm this code runs when a pattern isn't even playing? could use refactoring.
-  if (button_encoder && selected_mode==PATTERN_EDIT){
-    if(step_count<16){
-      bitClear(pattern[pattern_buffer][selected_inst][0], step_count);
-    }
-    else if(step_count>=16){
-      bitClear(pattern[pattern_buffer][selected_inst][1], step_count-16);
-    }
-    selected_pattern_edited=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
-    selected_pattern_edited_saved=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
-  }
+
   //Unmute all
-  else if(button_encoder&& (selected_mode==PATTERN_MIDI_MASTER || selected_mode==PATTERN_MIDI_SLAVE || selected_mode==PATTERN_DIN_SLAVE)&& mute_mode){
+  if(button_encoder&& (selected_mode==PATTERN_MIDI_MASTER || selected_mode==PATTERN_MIDI_SLAVE || selected_mode==PATTERN_DIN_SLAVE)&& mute_mode){
     inst_mute=0;
     for (byte i=0;i<16;i++){
       step_button_count[i]=0;
-
     }
   }
+
 }
