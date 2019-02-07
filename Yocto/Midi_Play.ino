@@ -102,7 +102,7 @@ void Handle_Stop() {
 void Handle_Clock() {
     Reset_Trig_Out();
     PORTD |= (1<<4);//met a 1 la clock DIN
-    delayMicroseconds (1000);//delay neccessaire pour que le cycle de la clock soit correct en DIN_CLK
+    delayMicroseconds(4000); // Make the DIN_CLK pulse last 4ms.
     PORTD &= ~(1<<4);//met a o la clock DIN
     //bitWrite(PORTD,4,!(bitRead (PIND,4)));
     //PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
