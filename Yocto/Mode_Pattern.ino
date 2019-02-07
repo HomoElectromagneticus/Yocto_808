@@ -230,22 +230,24 @@ void Mode_Pattern(){
     if (button_shift && (last_button_shift != button_shift)) {
 
       // Quantising strategy:
-      // TL;DR: If tap is entered late, we move the entered step forward.
-      // This needs some explanation, we can have 4 different scales here.
-      // E.g. in a normal 24ppqn 16step pattern, ppqn 0,6,12,18 represents the start of a step.
-      // Ticks 0,1,2,3 are fine, but anything entered on tick 4 or 5 should be pushed to the next step.
+      // TL;DR: If a tap is "late", we register it on the next step.
+      //
+      // What defines "late"? We have to consider the 4 different scales..
+      // By careful probing of a TR-606 (which also has tap mode) it seems Roland did the following:
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      // Scale  |  PPQN  |  Pulses/Step  |  Amount of pulses not "late"
+      // 1/16   |  24    |  6            |  3
+      // 1/32   |  12    |  3            |  1
+      // 1/8t   |  32    |  8            |  4
+      // 1/16t  |  16    |  4            |  2
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      // The code below "scales" the current ppqn count down to Pulses/step,
+      // And checks if the result is smaller than the amount of pulses not "late".
+      // The maths below for pulses not "late" seem to work for all cases.
+      // There most likely is a more elegant way.
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      // 1/32 means 12ppqn, 3 pulses per step, keep 2, push 1 
-      // 1/16 means 24ppqn, 6 pulses per step, keep 4, push 2 
-      // 1/16t means 16ppqn, 4 pulses per step, keep 3, push 1 
-      // 1/8t means 32ppqn, 8 pulses per step, keep 6, push 2 
-      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      // Still following? Me neither..
-      // There most likely is a more logical way to do it, but the maths below seem to work for these cases.
-      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
       // Check if we can place the note on the current step:
-      if (ppqn_count%(pattern_scale[pattern_buffer]/4) < (int) (pattern_scale[pattern_buffer]/16)*3) {
+      if (ppqn_count%(pattern_scale[pattern_buffer]/4) < (int) (pattern_scale[pattern_buffer]/8)) {
         if (step_count < 16) {
           bitSet(pattern[pattern_buffer][selected_inst][0], step_count);
         }
