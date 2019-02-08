@@ -4,7 +4,9 @@ Unofficial firmware for the DIY [TR-808 Clone by E-Licktronic](http://www.e-lick
 ## For users:
 Click the [releases](https://github.com/HomoElectromagneticus/Yocto_808/releases) tab above to download the latest release.
 
-Send the firmware via Midi SysEx to the Yocto by first powering on the Yocto holding 1-3-5.
+Update the Yocto firmware by holding step buttons 1, 3, and 5 while powering the unit on. Start sending the SysEx to the Yocto's MIDI IN port within five seconds. Be sure to put a delay between SysEx messages of ~200ms, or the Yocto may not take the update. Use of MIDI-OX on Windows and SysExLibrarian on Mac is recommended.
+
+If there are issues, don't hesitate to bring them up on the [e-licktronic forum](http://www.e-licktronic.com/forum/viewforum.php?f=17).
 
 ## For developers:
 ### Burning the bootloader onto the Yocto's microprocessor (Using Arduino IDE v1.0.6)
