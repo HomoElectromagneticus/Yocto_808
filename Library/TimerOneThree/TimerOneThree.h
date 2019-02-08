@@ -17,6 +17,8 @@
  * Modiied 7:26 PM Sunday, October 09, 2011 by Lex Talionis
  *  - renamed start() to resume() to reflect it's actual role
  *  - renamed startBottom() to start(). This breaks some old code that expects start to continue counting where it left off
+ * Modified December 16, 2013 by Friedrich Lauterbach
+ *  - added Timer3 support
  *
  *  This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -33,8 +35,8 @@
  *
  *  See Google Code project http://code.google.com/p/arduino-timerone/ for latest
  */
-#ifndef TIMERONE_h
-#define TIMERONE_h
+#ifndef TIMERONETHREE_h
+#define TIMERONETHREE_h
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -66,5 +68,32 @@ class TimerOne
     void (*isrCallback)();
 };
 
+class TimerThree
+{
+  public:
+  
+    // properties
+    unsigned int pwmPeriod;
+    unsigned char clockSelectBits;
+	char oldSREG;					// To hold Status Register while ints disabled
+
+    // methods
+    void initialize(long microseconds=1000000);
+    void start();
+    void stop();
+    void restart();
+	void resume();
+	unsigned long read();
+    void pwm(char pin, int duty, long microseconds=-1);
+    void disablePwm(char pin);
+    void attachInterrupt(void (*isr)(), long microseconds=-1);
+    void detachInterrupt();
+    void setPeriod(long microseconds);
+    void setPwmDuty(char pin, int duty);
+    void (*isrCallback)();
+};
+
+
 extern TimerOne Timer1;
+extern TimerThree Timer3;
 #endif
