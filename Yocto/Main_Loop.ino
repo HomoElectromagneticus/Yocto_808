@@ -4,119 +4,62 @@ void loop(){
 
   switch(selected_mode){
 
-    //================================================
+  //================================================
   case PATTERN_MIDI_MASTER:
-    // INIT---------------------------------------
-
-    if( old_selected_mode!=PATTERN_MIDI_MASTER && !play ) {
-      old_selected_mode=PATTERN_MIDI_MASTER;
-      Disconnect_Callback();
-      Mode_Synchro(0);//mode master synchro
-      if(mute_mode)mute_mode=0;
-      inst_mute=0;
-      TapeTempoInit();
-    }
-    if (old_selected_mode==PATTERN_MIDI_SLAVE){
-      MIDI.read();
-    }
-    else if (old_selected_mode==PATTERN_DIN_SLAVE){
-      // No action needed for DinSync.
-    }
-    else{
-      Check_BPM();
-    }
-    Check_Edit_Button_Pattern();
-    Check_Roll_Scale();
-    Check_Edit_Button_Pattern();
-    TestTapeTempo();   
-    Mode_Pattern();
-    Update_Pattern_EEprom();
-    Update_Pattern_Led();
-    break;
-
-    //=================================================
   case PATTERN_DIN_SLAVE:
-    // INIT----------------------------------------
-    if((old_selected_mode!=PATTERN_DIN_SLAVE)&& !play){
-      old_selected_mode=PATTERN_DIN_SLAVE;
+  case PATTERN_MIDI_SLAVE:
+    Check_Edit_Button_Pattern();
+    Check_Roll_Scale();
+    // INIT---------------------------------------
+    if (!play && old_selected_mode!=selected_mode) {
+      old_selected_mode=selected_mode;
       Disconnect_Callback();
-      Mode_Synchro(1);//Din slave synchro
+      switch(selected_mode) {
+        case PATTERN_MIDI_MASTER:
+          Mode_Synchro(0); //mode master synchro
+          TapeTempoInit();
+          break;
+        case PATTERN_DIN_SLAVE:
+          Mode_Synchro(1); //Din slave synchro
+          break;
+        case PATTERN_MIDI_SLAVE:
+          Mode_Synchro(2); //MIDI slave synchro
+          MIDI.setHandleClock(Handle_Clock);    // Callback Clock MIDI
+          MIDI.setHandleStart(Handle_Start);    // Callback Start MIDI
+          MIDI.setHandleContinue(Handle_Start); // Callback Continue MIDI
+          MIDI.setHandleStop(Handle_Stop);      // Callback Stop MIDI
+          break;
+      }
       if(mute_mode)mute_mode=0;
       inst_mute=0;
-      //Serial.println("initilaize_PTR Din Slave");
     }
-    if (old_selected_mode==PATTERN_MIDI_MASTER){
+
+    if (sync_mode == MASTER) {
       Check_BPM();
+      TestTapeTempo();
     }
-    else if (old_selected_mode==PATTERN_MIDI_SLAVE){
+    else if (sync_mode == MIDI_SLAVE) {
       MIDI.read();
-    }
-    Check_Edit_Button_Pattern();
-    Check_Roll_Scale();
+    } 
+
     Mode_Pattern();
     Update_Pattern_EEprom();
     Update_Pattern_Led();
     break;
-
-    //=================================================
-  case PATTERN_MIDI_SLAVE:
-    // INIT----------------------------------------
-    if(old_selected_mode!=PATTERN_MIDI_SLAVE && !play) {
-      old_selected_mode = PATTERN_MIDI_SLAVE;
-      Disconnect_Callback();
-      Mode_Synchro(2);                      //MIDI slave synchro
-      if(mute_mode) mute_mode=0;
-      MIDI.setHandleClock(Handle_Clock);    // Callback Clock MIDI
-      MIDI.setHandleStart(Handle_Start);    // Callback Start MIDI
-      MIDI.setHandleContinue(Handle_Start); // Callback Stop MIDI
-      MIDI.setHandleStop(Handle_Stop);      // Callback Stop MIDI
-      inst_mute = 0;
-      //Serial.println("initilaize_PTR MIDI Slave");
-    }
-    if (old_selected_mode==PATTERN_MIDI_MASTER) {
-      Check_BPM();
-    }
-    else if (old_selected_mode==PATTERN_DIN_SLAVE) {
-      // No action needed for DinSync.
-    }
-    else {
-      MIDI.read();
-    }
-    Check_Edit_Button_Pattern();
-    Check_Roll_Scale();
-    Mode_Pattern();
-    Update_Pattern_EEprom();
-    Update_Pattern_Led();
-    //todo
-    break;
-
     //=================================================
   case PATTERN_EDIT:
     // INIT----------------------------------------
     if (old_selected_mode!=PATTERN_EDIT) {
       old_selected_mode=PATTERN_EDIT;
-      if(!play){
-        Disconnect_Callback();
-        Mode_Synchro(0);//mode master synchro
-        if(mute_mode)mute_mode=0;
-        inst_mute=0;
-        roll_mode=0;
-      }
     }
     if (sync_mode == MASTER) {
       Check_BPM();
-    }
-    else if (sync_mode == DIN_SLAVE) {
-      // No action needed for DinSync.
     }
     else if (sync_mode == MIDI_SLAVE) {
       MIDI.read();
     }
 
     Check_Edit_Button_Pattern_Edit();
-    //    Timer1.initialize(timer_time); // set a timer of length in microseconds 
-    //Serial.println(timer_time);
-    //TestTapeTempo();
     Mode_Pattern();
     Update_Pattern_EEprom();
     Update_Pattern_Led();
