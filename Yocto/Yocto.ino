@@ -24,7 +24,7 @@
 #include <TR_SEQ.h>
 #include <EEPROM.h>
 #include <Wire.h>
-#include <TimerOne.h>
+#include <TimerOneThree.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <MIDI.h>
@@ -202,6 +202,8 @@ byte debut_mesure_count=0;//utiliser pour toujours savoir quand la mesure recomm
 volatile boolean end_mesure_flag=0;//indique qu'on est passe a la mesure suivante, utiliser dans le mode song play pour faire incrementer le compteur 
 volatile boolean middle_mesure_flag=0;//utiliser pour avancer au pattern suivant lors de la selection d'un block indique le milieu de la mesure
 
+unsigned int dinsync_clock_timeout=0;
+
 //Variable du DEBOUNCE
 unsigned long millis_debounce_step_button, millis_debounce_edit_button=0;//variable pour le temps de debounce des boutons
 
@@ -293,6 +295,8 @@ void setup() {
   bpm=480;//BPM reel = bpm/4
   timer_time =((unsigned int)(2500000/bpm));
   Timer1.initialize(timer_time); // set a timer of length in microseconds 
+  // Timer for Dinsync clock generation.
+  Timer3.initialize(16000000/4800); // F_CPU/CLOCK_TIMER_FREQ
 
   //Initialise les liaisons serie
   Serial.begin(115200);//liaison  serie pour debugger
