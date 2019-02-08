@@ -26,6 +26,7 @@ for future versions.
   void Send_Trig_Out_Midi();
   void Handle_NoteOn(byte channel, byte pitch, byte velocity);
   void Mode_Synchro(byte mode);
+  void Set_Dinsync_Clock_High();
   void Disconnect_Callback();
   void Handle_Stop();
   void Handle_Clock();

@@ -105,7 +105,9 @@ void Handle_Clock() {
     if (first_play) {
         delayMicroseconds(2000); // Old dinsync devices have problems if the the CLK comes too quickly after RUN.
     }
-    PORTD |= (1<<4);//met a 1 la clock DIN
+    
+    Set_Dinsync_Clock_High();
+
     //bitWrite(PORTD,4,!(bitRead (PIND,4)));
     //PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
 
@@ -139,7 +141,7 @@ void Handle_Clock() {
         else tempo_led_flag = 1;
 
         if (first_play) {
-	        ppqn_count = 0;   //initialise le compteur PPQN
+	        //ppqn_count = 0;   //initialise le compteur PPQN
             PORTB |= 1<<2;    //envoie une impulsion sur la sorti trig CPU a chaque pas
             SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
             Send_Trig_Out();
@@ -193,9 +195,6 @@ void Handle_Clock() {
         }
     }
     PORTB &= ~(1<<2);         // met a 0 la sorti TRIG CPU
-
-    delayMicroseconds(4000); // Make the DIN_CLK pulse last 4ms.
-    PORTD &= ~(1<<4);//met a o la clock DIN
 }
 
 
