@@ -91,18 +91,20 @@ Hold *START and SHIFT*. When you initialise EEPROM, Factory preset are copied in
 .Midi note numbers
 [options="header"]
 |=======================
-|INSTRUMENT|MIDI Note
-|BD        |C2
-|SD   	   |D2
-|LT        |F2
-|MT        |G2
-|HT        |B2
-|RS        |C#2
-|CP        |D#2
-|CB        |G#3
-|CY        |C#3
-|OH        |A#2
-|CH        |F#2
+|INSTRUMENT|MIDI Note Name  |MIDI Note Number
+|BD        |C2              |36
+|SD   	   |D2              |38
+|LT        |F2              |41
+|MT        |G2              |43
+|HT        |B2              |47
+|RS        |C#2             |37
+|CP        |D#2             |39
+|CB        |G#3             |56
+|CY        |C#3             |49
+|OH        |A#2             |46
+|CH        |F#2             |42
+|TR1       |C4              |60
+|TR2       |D4              |62
 |=======================
 
 === Midi Dump
