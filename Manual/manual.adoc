@@ -105,6 +105,13 @@ Hold *START and SHIFT*. When you initialise EEPROM, Factory preset are copied in
 |CH        |F#2
 |=======================
 
+== Midi Dump
+This mode allows you to make a backup of all pattern data by dumping it as Midi SysEx. This was not part of the original Yocto feature set, so it is not indicated on the front panel. You can find Midi Dump mode on the empty rotary *switch position 10*, right under INIT.
+To dump the complete pattern memory of the Yocto, start your external midi recorder, then press *START*. An animation will indicate going over 16 patterns per 16 banks. Another animation will be shown when done.
+
+== Midi Restore
+This mode allows you to restore previously backed up pattern data to the Yocto's internal memory. As this was not part of the original Yocto feature set, it is not indicated on the front panel. You can find Midi Restore mode on the empty rotary *switch position 9*, under Midi Dump, left of Expander.
+In this mode, the Yocto is always ready to receive patterns in SysEx format. As soon as you start sending the external data, LED animations will show which pattern/bank we are receiving.
 
 == Expander
 Select Input MIDI channel with steps buttons. To assign Midi note, select an instrument with *INST SELECTOR*, hold *SHIFT* and send the MIDI note you want to trig the current select instrument (Midi note are hold in the EEprom). Mute led indicate Midi activity.
