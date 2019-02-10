@@ -32,8 +32,11 @@ for future versions.
   void Handle_Start();
   void Mode_Song_Play();
   void Update_Song_Led();
+  void calc_CRC8();
   void Update_Pattern_EEprom();
   void Update_Song_EEprom();
+  void Dump_EEprom();
+  void Receive_EEprom(byte * array, unsigned size);
   void Mode_Song_Edit();
   void Paste_Pattern();
   void Copy_Pattern();

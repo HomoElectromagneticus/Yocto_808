@@ -1,7 +1,8 @@
 //La library Wire a du etre modifier pour grossir le buffer jusqu'a 128 byte.
 //le fichier twi.h et wire.h on etait modifier : #define BUFFER_LENGTH 128
 
-#define PTRN_SIZE_BYTE (uint16_t)64  //deux octets pour 16 pas fois 16 instruments fois deux pour les deux parti 1a16 et 17a32 
+#define PTRN_POSITION_BYTE (uint16_t)1  // 256 pattern positions represented by 1 byte. 
+#define PTRN_SIZE_BYTE (uint16_t)64  //deux octets pour 16 pas fois 16 instruments fois deux pour les deux parti 1a16 et 17a32 = 512/8
 #define PTRN_SETUP_SIZE_BYTE (uint16_t)2 //1 octet pour le nombre pas + 1 octet pour la scale
 #define PTRN_NB (uint16_t)256 // 16 * 16 
 
@@ -646,6 +647,143 @@ void Initialize_EEprom()
 
   }
   button_init=0;//reinitialise le bouton init pour eviter que la loop se fasse deux fois
+}
+
+
+void Dump_EEprom()
+{
+  if (button_play) {
+    button_shift=0; // Prevent the loop from running twice.
+    
+    byte header[5] = {0xF0, 0x7D, 0x08, 0x08, 0x00}; // SysEx header.
+    byte stop[1] = {0xF7}; // SysEx end.
+
+    // 1. Dump all patterns one by one.
+    // --------------------------------
+    // One pattern will be constructed as following:
+    // Position (1 byte) + Pattern steps (64 bytes) + Size (1 byte) + Scale (1 byte) = 67 bytes.
+    // This data will get encoded (10 bytes) and a SRC-8 checksum (1 byte) will be added.
+    // Then the whole thing will be wrapped with the SysEx header and end (6 bytes) and sent over midi (total: 84 bytes).
+    header[4] = 0x03; // SysEx Pattern data identifier.
+    byte buffer[78];
+    for (int x=0; x<PTRN_NB; x++) { // Loop over all patterns
+      byte pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // This will hold the pattern data.
+
+      temp_step_led = 0;
+      temp_step_led|=1<<(x/16); // Show the current bank position on the LEDs.
+      temp_step_led|=1<<(x%16); // Show the current pattern position on the LEDs.
+      SR.Led_Step_Write(temp_step_led);
+
+      // First add the pattern position.
+      pattern[0] = x; 
+
+      // Next read the actual pattern steps.
+      unsigned int address = OFFSET_PATTERN + x * PTRN_SIZE_BYTE;
+      Wire_Begin_TX(address);
+      Wire.endTransmission();
+      Wire.requestFrom(0x50, PTRN_SIZE_BYTE);
+
+      // Add the pattern steps.
+      for (int y=0; y<PTRN_SIZE_BYTE; y++) {
+        pattern[PTRN_POSITION_BYTE + y] = Wire.read();
+      }
+
+      // Next read and add 2 bytes from pattern setup data (size and scale).
+      address = OFFSET_PATTERN_SETUP + x * PTRN_SETUP_SIZE_BYTE;
+      Wire_Begin_TX(address);
+      Wire.endTransmission();
+      Wire.requestFrom(0x50, PTRN_SETUP_SIZE_BYTE);
+      pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE] = Wire.read();  
+      pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + 1] = Wire.read();
+
+      // Encode data.  67 bytes = total size of pattern, encoded this will give 77 bytes
+      unsigned int length = midi::encodeSysEx(pattern, buffer, PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE);
+
+      // Add CRC-8 checksum, constricted to 7 bits.
+      buffer[length] = calc_CRC8(buffer, length);
+      buffer[length] &= 0x7F;
+
+      MIDI.sendSysEx(5, header, true); // Send start and manufacturer ID
+      MIDI.sendSysEx(length + 1, buffer, true); // Send data.
+      MIDI.sendSysEx(1, stop, true); // Send end.
+
+      SR.Led_Step_Write(0); // Disable the LEDs.
+    }
+    
+    // 2. Send songs.
+    // @TODO
+    header[4] = 0x05; // SysEx Song data identifier.
+
+    // 3. Send config.
+    // @TODO
+    header[4] = 0x06; // Config data identifier.
+
+    // Lightshow to indicate we are done
+    Chenillard();
+  }
+  button_play=0; // Prevent the loop from running twice
+}
+
+void Receive_EEprom(const byte* sysex, unsigned size) 
+{
+  // If this isn't sysex, what are we even doing here?
+  if (sysex[0] != 0xF0) {
+    return;
+  }
+
+  // @TODO: The size > 5 is a placeholder for now
+  if (size < 5) {
+    return;
+  }
+
+  // Check if the sysex is meant for yocto.
+  if (sysex[1] == 0x7D && sysex[2] == 0x08 && sysex[3] == 0x08) {
+    if (sysex[4] == 0x03) { // Pattern data.
+      byte pattern_data[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE];
+      int decode_size = 77; // @See encodeSysEx in Dump_EEprom.
+      temp_step_led = 0; // Variable for LEDs.
+      unsigned int length = midi::decodeSysEx(&sysex[5], pattern_data, decode_size);
+
+      // Calculate CRC-8 checksum, constricted to 7 bits.
+      unsigned char checksum = calc_CRC8((uint8_t *) &sysex[5], decode_size);
+      checksum &= 0x7F;
+
+      // Only continue if the checksum matches. 82 = 5 (header) + 77 (encoded data).
+      if (checksum == sysex[82]) {
+        
+        temp_step_led|=1<<(pattern_data[0]/16); // Show the current bank position on the LEDs.
+        temp_step_led|=1<<(pattern_data[0]%16); // Show the current pattern position on the LEDs.
+        SR.Led_Step_Write(temp_step_led);
+
+        // Write pattern steps to memory.
+        unsigned int address = OFFSET_PATTERN + pattern_data[0] * PTRN_SIZE_BYTE; // pattern_data[0] is the pattern number 0..255.
+        Wire_Begin_TX(address); 
+
+        for (char i=1; i<65; i++) { // Start at one, end after sending the 64 pattern bytes from the buffer.
+          Wire.write(pattern_data[i]);
+        }
+        Wire.endTransmission();
+        delay(DELAY_WR); // Needed before we write another page.
+
+        // Write pattern setup to memory.
+        address = OFFSET_PATTERN_SETUP + pattern_data[0] * PTRN_SETUP_SIZE_BYTE;
+        Wire_Begin_TX(address); // Start the transmission to the designated address.
+        Wire.write(pattern_data[65]); // Send the number of steps.
+        Wire.write(pattern_data[66]); // Send the scale of the pattern.
+        Wire.endTransmission();
+        delay(DELAY_WR); // Needed before we write another page.
+
+        // If we don't re-load the current pattern, it will still play the old one.
+        Load_Pattern();
+      }
+    }
+    else if (sysex[4] == 0x05) { // Song data.
+      // TODO.
+    }
+    else if (sysex[4] == 0x06) { // Config data.
+      // TODO.
+    }
+  }
 }
 
 //======================================================================
