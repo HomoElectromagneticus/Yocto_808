@@ -1,7 +1,6 @@
 void loop(){
 
   Check_Menu_Inst();
-
   switch(selected_mode){
 
     //================================================
@@ -432,5 +431,32 @@ void loop(){
 
     break;
 
+  case EEPROM_DUMP:
+    Check_Edit_Button_Setup();
+    if (old_selected_mode != EEPROM_DUMP) {
+      old_selected_mode = EEPROM_DUMP;
+      //Serial.println("EEPROM_DUMP");
+    }
+    if (button_play) {
+      Dump_EEprom();
+    }
+    break;
+
+  case EEPROM_RECEIVE:
+    Check_Edit_Button_Setup();
+    if (old_selected_mode != EEPROM_RECEIVE) {
+      old_selected_mode = EEPROM_RECEIVE;
+      //Serial.println("EEPROM_RECEIVE");
+    }
+    while (MIDI.read()) {
+      if (MIDI.getType() >= 0xf0) // SysEX
+      {
+        Receive_EEprom(MIDI.getSysExArray(), MIDI.getSysExArrayLength());
+      }
+    }
+    SR.Led_Step_Write(0); // Disable the LEDs.   
+    break;
+
   }
+  
 }
