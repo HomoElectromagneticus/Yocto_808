@@ -773,8 +773,8 @@ void Receive_EEprom(const byte* sysex, unsigned size)
         Wire.endTransmission();
         delay(DELAY_WR); // Needed before we write another page.
 
-        // If we don't tell the selected pattern has changed, it will still play the old pattern
-        selected_pattern_changed=1;   
+        // If we don't re-load the current pattern, it will still play the old one.
+        Load_Pattern();
       }
     }
     else if (sysex[4] == 0x05) { // Song data.
