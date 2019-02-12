@@ -235,8 +235,8 @@ void Disconnect_Callback() {
     */
     PORTC &= ~(B11111100);//clear les edits leds dans ce mode 
     SR.Led_Step_Write(0);//tous les leds Step Off
-    MIDI.disconnectCallbackFromType(NoteOn);
-    MIDI.disconnectCallbackFromType(Clock);
-    MIDI.disconnectCallbackFromType(Start);
-    MIDI.disconnectCallbackFromType(Stop);
+    MIDI.disconnectCallbackFromType(midi::NoteOn);
+    MIDI.disconnectCallbackFromType(midi::Clock);
+    MIDI.disconnectCallbackFromType(midi::Start);
+    MIDI.disconnectCallbackFromType(midi::Stop);
 }

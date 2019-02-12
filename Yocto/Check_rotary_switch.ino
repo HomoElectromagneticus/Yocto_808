@@ -1,24 +1,22 @@
-//Liste des differents modes selectionner dans la variable "select_mode" 
+// List the possible selection modes of the variable "select_mode".
 #define PATTERN_MIDI_MASTER 0
 #define PATTERN_DIN_SLAVE   1
 #define PATTERN_MIDI_SLAVE  2
 #define PATTERN_EDIT        3
-#define SONG_MIDI_MASTER 4
-#define SONG_DIN_SLAVE   5 
-#define SONG_MIDI_SLAVE  6
-#define SONG_EDIT        7
-#define MIDI_PLAY        8
-#define INIT_EEPROM      11
-#define CLEAR_PATTERN    13
-#define PASTE_PATTERN    14
-#define COPY_PATTERN     15
-#define CLEAR_SONG       12
-#define USER1            9
-#define USER2            10
+#define SONG_MIDI_MASTER    4
+#define SONG_DIN_SLAVE      5 
+#define SONG_MIDI_SLAVE     6
+#define SONG_EDIT           7
+#define MIDI_PLAY           8 // Expander
+#define EEPROM_RECEIVE      9 // Receive memory with SysEx
+#define EEPROM_DUMP        10 // Dump memory with SysEx ([Track] on elsmurf case)
+#define INIT_EEPROM        11
+#define CLEAR_SONG         12
+#define CLEAR_PATTERN      13
+#define PASTE_PATTERN      14
+#define COPY_PATTERN       15
 
-
-
-//liste des instruments
+// List the instruments.
 #define AC 0
 #define BD 1
 #define SN 2

@@ -28,6 +28,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <MIDI.h>
+#include <SoftwareSerial.h>
 
 #define BD_MIDI_NOTE 36  //C2
 #define SD_MIDI_NOTE 38  //D2
@@ -43,7 +44,7 @@
 
 #define MIDI_ACTIVITY_LED (1<<7)
 
-#define DEBUGG 0 // permet de debugger le programme via le moniteur serie d'arduino
+#define DEBUG 0 // Allow debugging the program with arduino serial monitor.
 #define DEBOUNCE 5 // debounce pour eviter les rebonds des boutons
 
 #define NBR_INST 16 //nombre d'instrument max
@@ -244,11 +245,9 @@ boolean inst_midi_note_edited=0;//flag que les note midi ont changé
 unsigned int midi_led_flash_count = 0; // To flash the LED on MIDI activity
 unsigned int midi_trig_pulse_count = 0; // To create TRIG1/2/3 pulse
 
-
 unsigned long timer_off=0;
 
 unsigned long noteOnOff[16];
-
 
 void defNotes() {
   inst_midi_note[0]= 59; //Array des note midi de chaque instruments
@@ -268,6 +267,9 @@ void defNotes() {
   inst_midi_note[14]=64; //Array des note midi de chaque instruments
   inst_midi_note[15]=65; //Array des note midi de chaque instruments
 }
+
+// Initialize midi.
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 
 //====================================================
@@ -298,9 +300,10 @@ void setup() {
   // Timer for Dinsync clock generation.
   Timer3.initialize(16000000/4800); // F_CPU/CLOCK_TIMER_FREQ
 
-  //Initialise les liaisons serie
-  Serial.begin(115200);//liaison  serie pour debugger
+  // Initialise serial connection for debugger.
+  Serial.begin(115200);
 
+  // Midi
   MIDI.begin(MIDI_CHANNEL_OMNI); 
 
   defNotes();
