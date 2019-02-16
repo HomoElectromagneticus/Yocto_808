@@ -14,7 +14,7 @@ image:images/panel.png[1722,807,auto]
 - 11 separate OUTs, one for each drum
 - A mono Master OUT
 - 2 Trig Outputs (5V S-trig \~1ms) that allow you to trigger an external instrument (an optional third Trig OUT is present on the IO Board)
-- Midi IN, OUT, THRU (hardware Midi THRU)
+- MIDI IN, OUT, THRU (hardware MIDI THRU)
 - Din sync24 IN/OUT to synchronize other machines
 - Software Update via SysEx
 
@@ -40,7 +40,7 @@ You can switch between Play Mode and Edit Mode when sequencer is running.
 === Pattern Din Sync
 Same as *"Pattern Mode"* but with the sync slaved to external Sync24. In this mode Yocto is waiting for a DIN clock signal.
 
-=== Pattern Midi Sync
+=== Pattern MIDI Sync
 Same as *"Pattern Mode"* but with the sync slaved to external MIDI Sync. In this mode Yocto is waiting for a MIDI clock signal.
 
 === Pattern Edit
@@ -62,7 +62,7 @@ Four scale leds show you track position in binary. (no led > position 1, first l
 === Track Din Sync
 Same as *"Track Play"* but with the sync slaved to external Sync24. In this mode Yocto is waiting for a DIN clock signal.
 
-=== Track Midi Sync
+=== Track MIDI Sync
 Same as *"Track Play"* but with the sync slaved to external MIDI Sync. In this mode Yocto is waiting for a MIDI clock signal.
 
 === Track Edit
@@ -86,19 +86,21 @@ leds scroll.
 Select pattern you want to clear. Press *START*. Steps leds scroll.
 
 === Init EEPROM
-Hold *START and SHIFT*. When you initialise EEPROM, Factory preset are copied in Bank 01 and all others patterns are cleared with 16 steps and 1/16 scale, Tracks are cleared and default Note Number are restored for the Expander mode as follow:
+Hold *START and SHIFT*. When you initialise EEPROM, factory presets are copied in Bank 01 and all others patterns are cleared with 16 steps and 1/16 scale, tracks are cleared, and default MIDI Note Numbers are restored for the Expander mode.
 
-=== Midi Dump
-This mode allows you to make a backup of all pattern data by dumping it as Midi SysEx. This was not part of the original Yocto feature set, so it is not indicated on the front panel. You can find Midi Dump mode on the empty rotary *switch position 10*, right under INIT.
-To dump the complete pattern memory of the Yocto, start your external midi recorder, then press *START*. An animation will indicate going over 16 patterns per 16 banks. Another animation will be shown when done.
+=== MIDI Dump
+image:images/sysex_dump_recieve.jpg[360,360,auto]
 
-=== Midi Restore
-This mode allows you to restore previously backed up pattern data to the Yocto's internal memory. As this was not part of the original Yocto feature set, it is not indicated on the front panel. You can find Midi Restore mode on the empty rotary *switch position 9*, under Midi Dump, left of Expander.
-In this mode, the Yocto is always ready to receive patterns in SysEx format. As soon as you start sending the external data, LED animations will show which pattern/bank we are receiving.
+This mode allows you to make a backup of all pattern data by dumping it as MIDI SysEx. This was not part of the original Yocto feature set, so it is not indicated on the front panel. You can find MIDI Dump mode on the empty rotary *switch position 10*, right under INIT.
+To dump the complete pattern memory of the Yocto, start your external MIDI recorder, then press *START*. An animation will indicate going over 16 patterns per 16 banks. Another animation will be shown when done.
+
+=== MIDI Restore
+This mode allows you to restore previously backed up pattern data to the Yocto's internal memory. As this was not part of the original Yocto feature set, it is not indicated on the front panel. You can find MIDI Restore mode on the empty rotary *switch position 9*, under MIDI Dump, left of Expander.
+In this mode, the Yocto is always ready to receive patterns in SysEx format. As soon as you start sending the external data, LED animations will show which pattern/bank are being received.
 
 == Expander
-Select Input MIDI channel with steps buttons. To assign Midi note, select an instrument with *INST SELECTOR*, hold *SHIFT* and send the MIDI note you want to trig the current select instrument (Midi note are hold in the EEprom). Mute led indicate Midi activity. The default notes are given in the table below:
-.Midi note numbers
+Select Input MIDI channel with steps buttons. To assign MIDI note, select an instrument with *INST SELECTOR*, hold *SHIFT* and send the MIDI note you want to trig the current select instrument (Midi note are hold in the EEprom). Mute led indicate MIDI activity. The default notes are given in the table below:
+
 [options="header"]
 |=======================
 |INSTRUMENT|MIDI Note Name  |MIDI Note Number
