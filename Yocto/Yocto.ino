@@ -84,7 +84,7 @@ boolean first_time_paste_pattern=0;//flag que l'on vient de rentrée dans le mod
 unsigned int bpm; // bpm du sequenceur depend de l'encodeur
 unsigned int timer_time;// temps d'overflow du timer depend du bpm
 byte sync_mode=0;//mode de synhcronisation 0=master 1=Din slave 2=Midi slave
-
+byte sync_fallback=0;//used as a fallback mechanism
 // variable which serves to check the edit buttons
 //variable qui serve a checker les buttons Edits
 //====================================================

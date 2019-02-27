@@ -33,6 +33,10 @@ void loop(){
       inst_mute=0;
     }
 
+    if (first_play) {
+      sync_fallback = sync_mode;
+    } 
+
     if (sync_mode == MASTER) {
       Check_BPM();
       TestTapeTempo();
@@ -50,8 +54,8 @@ void loop(){
     // INIT----------------------------------------
     if (old_selected_mode!=PATTERN_EDIT) {
       old_selected_mode=PATTERN_EDIT;
-      if (sync_mode == MASTER) {
-        Mode_Synchro(0);
+      if (!play) {
+        Mode_Synchro(sync_fallback);
       }
     }
     if (sync_mode == MASTER) {
