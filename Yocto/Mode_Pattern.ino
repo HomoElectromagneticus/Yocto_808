@@ -278,13 +278,6 @@ void Mode_Pattern(){
           else {
             bitSet(pattern[pattern_buffer][selected_inst][1], step_count-16);
           }
-          // Some magic to play the actual sound.
-          // We don't play the actual sound in the case it is pushed to the next step,
-          // as it will play properly already by default once the step starts!
-          SR.Inst_Send(1<<selected_inst);
-          PORTB |= (1<<2);
-          delayMicroseconds(10);
-          PORTB &= ~(1<<2);
         }
         else { // We need to push the note to the next step.
           if (step_count<15) {
@@ -297,6 +290,15 @@ void Mode_Pattern(){
             bitSet(pattern[pattern_buffer][selected_inst][1], step_count-15);
           }
         }
+        // Some magic to play the actual sound.
+        // Seems logical not to  play the actual sound in the case it is pushed 
+        // to the next step, as it will play properly already by default once the step starts.
+        // However in practice this usually does not work. Double triggers are better than no
+        // triggers at all, so we go for the possible double trigger for now:
+        SR.Inst_Send(1<<selected_inst);
+        PORTB |= (1<<2);
+        delayMicroseconds(10);
+        PORTB &= ~(1<<2);
         // Make sure the change is saved.
         selected_pattern_edited=1;
         selected_pattern_edited_saved=1;
