@@ -7,8 +7,6 @@ void loop(){
   case PATTERN_MIDI_MASTER:
   case PATTERN_DIN_SLAVE:
   case PATTERN_MIDI_SLAVE:
-    Check_Edit_Button_Pattern();
-    Check_Roll_Scale();
     // INIT---------------------------------------
     if (!play && old_selected_mode!=selected_mode) {
       old_selected_mode=selected_mode;
@@ -45,6 +43,8 @@ void loop(){
       MIDI.read();
     } 
 
+    Check_Edit_Button_Pattern();
+    Check_Roll_Scale();
     Mode_Pattern();
     Update_Pattern_EEprom();
     Update_Pattern_Led();
