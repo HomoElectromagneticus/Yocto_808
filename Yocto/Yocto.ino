@@ -203,7 +203,7 @@ byte debut_mesure_count=0;//utiliser pour toujours savoir quand la mesure recomm
 volatile boolean end_mesure_flag=0;//indique qu'on est passe a la mesure suivante, utiliser dans le mode song play pour faire incrementer le compteur 
 volatile boolean middle_mesure_flag=0;//utiliser pour avancer au pattern suivant lors de la selection d'un block indique le milieu de la mesure
 
-unsigned int dinsync_clock_timeout=0;
+volatile unsigned int dinsync_clock_timeout=0;
 
 //Variable du DEBOUNCE
 unsigned long millis_debounce_step_button, millis_debounce_edit_button=0;//variable pour le temps de debounce des boutons
