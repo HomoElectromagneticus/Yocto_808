@@ -50,6 +50,9 @@ void loop(){
     // INIT----------------------------------------
     if (old_selected_mode!=PATTERN_EDIT) {
       old_selected_mode=PATTERN_EDIT;
+      if (sync_mode == MASTER) {
+        Mode_Synchro(0);
+      }
     }
     if (sync_mode == MASTER) {
       Check_BPM();
