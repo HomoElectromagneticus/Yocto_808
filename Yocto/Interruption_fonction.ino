@@ -147,6 +147,13 @@ void Count_96PPQN()
 //////////////////////////////////////////////////////////////////////
 void Count_Clock() {
   if (sync_mode == MASTER || sync_mode == MIDI_SLAVE) {
+    if (dinsync_first_clock_timeout != 0) {
+      dinsync_first_clock_timeout--;
+      if (dinsync_clock_timeout == 0) {
+        Set_Dinsync_Clock_High();
+      }
+    }
+
     if (dinsync_clock_timeout != 0) {
       dinsync_clock_timeout--;
       if (dinsync_clock_timeout == 0) {

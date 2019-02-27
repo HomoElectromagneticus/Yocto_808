@@ -103,10 +103,14 @@ void Handle_Clock() {
     Reset_Trig_Out();
 
     if (first_play) {
-        delayMicroseconds(2000); // Old dinsync devices have problems if the the CLK comes too quickly after RUN.
+        // Old dinsync devices have problems if the the CLK comes too quickly after RUN.
+        // Therefor we delay it with Timer3 for 2ms.
+        dinsync_first_clock_timeout = 2;
+    }
+    else {
+        Set_Dinsync_Clock_High();
     }
     
-    Set_Dinsync_Clock_High();
 
     //bitWrite(PORTD,4,!(bitRead (PIND,4)));
     //PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
