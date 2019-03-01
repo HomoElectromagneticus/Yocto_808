@@ -1,6 +1,9 @@
 
 /* Yocto clone TR808 Sequencer Firmware
 *
+*  v1.1a: -Added MIDI dump and restore function
+*         -Fixed sync issues when slaved to MIDI clock
+*
 *  v1.0g: -Fixed roll in MIDI Slave mode
 *
 *  v1.0f: -Fixed Trigger 2
