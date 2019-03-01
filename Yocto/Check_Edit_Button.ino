@@ -1,5 +1,22 @@
 void Check_Edit_Button_Pattern_Edit()
 {
+  //-----------------------------------------------------
+  if (sync_mode != MASTER){
+    // check status play in DIN_SYNC mode
+    boolean din_start_state = PIND & (1<<5);
+    if (din_start_state != old_din_start_state){
+      if(din_start_state){ // DinSync Run signal is HIGH.
+        first_play=1; // Indicate first play.
+        play=1;
+
+      }
+      else if (!din_start_state){ // DinSync Run signal is LOW.
+        play=0;
+        first_stop=1;
+      }
+      old_din_start_state = din_start_state;
+    }
+  }
 
   // read the state of the buttons
   byte reading= SR.Button_SR_Read(2);//stock l'etat des boutons

@@ -24,7 +24,7 @@
 #include <TR_SEQ.h>
 #include <EEPROM.h>
 #include <Wire.h>
-#include <TimerOne.h>
+#include <TimerOneThree.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <MIDI.h>
@@ -83,8 +83,8 @@ boolean first_time_paste_pattern=0;//flag que l'on vient de rentrée dans le mod
 
 unsigned int bpm; // bpm du sequenceur depend de l'encodeur
 unsigned int timer_time;// temps d'overflow du timer depend du bpm
-byte sync_mode;//mode de synhcronisation 0=master 1=Din slave 2=Midi slave
-
+byte sync_mode=0;//mode de synhcronisation 0=master 1=Din slave 2=Midi slave
+byte sync_fallback=0;//used as a fallback mechanism
 // variable which serves to check the edit buttons
 //variable qui serve a checker les buttons Edits
 //====================================================
@@ -203,6 +203,8 @@ byte debut_mesure_count=0;//utiliser pour toujours savoir quand la mesure recomm
 volatile boolean end_mesure_flag=0;//indique qu'on est passe a la mesure suivante, utiliser dans le mode song play pour faire incrementer le compteur 
 volatile boolean middle_mesure_flag=0;//utiliser pour avancer au pattern suivant lors de la selection d'un block indique le milieu de la mesure
 
+volatile unsigned int dinsync_clock_timeout=0;
+volatile unsigned int dinsync_first_clock_timeout=0;
 //Variable du DEBOUNCE
 unsigned long millis_debounce_step_button, millis_debounce_edit_button=0;//variable pour le temps de debounce des boutons
 
@@ -295,6 +297,8 @@ void setup() {
   bpm=480;//BPM reel = bpm/4
   timer_time =((unsigned int)(2500000/bpm));
   Timer1.initialize(timer_time); // set a timer of length in microseconds 
+  // Timer for Dinsync clock generation.
+  Timer3.initialize(16000000/4800); // F_CPU/CLOCK_TIMER_FREQ
 
   // Initialise serial connection for debugger.
   Serial.begin(115200);
