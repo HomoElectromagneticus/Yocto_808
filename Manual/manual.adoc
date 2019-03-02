@@ -119,6 +119,8 @@ Select Input MIDI channel with steps buttons. To assign MIDI note, select an ins
 |TR2       |D4              |62
 |=======================
 
+Sending a MIDI note with velocity greater than or equal to 100 will trigger the accent. Note that accent is common across all drum voices!
+
 == SysEx Sofware Update
 To update Yocto software, turn off Yocto then turn on while holding step button 1, 3, 5. All steps leds will blink two times.
 Yocto are now waiting for Sysex. We recommended MIDI-OX as Sysex loader. (http://www.midiox.com//[www.midiox.com^])
