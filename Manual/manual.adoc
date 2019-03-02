@@ -11,8 +11,8 @@ image:images/panel.png[1722,807,auto]
 - A common Accent for all drums
 - 16 banks of 16 patterns from 1 to 32 steps
 - 16 songs of 256 patterns
-- 11 separate OUTs, one for each drum
 - A mono Master OUT
+- 11 voice OUTs - one for each drum (using these outputs mutes the relevant voice from the master output)
 - 2 Trig Outputs (5V S-trig \~1ms) that allow you to trigger an external instrument (an optional third Trig OUT is present on the IO Board)
 - MIDI IN, OUT, THRU (hardware MIDI THRU)
 - Din sync24 IN/OUT to synchronize other machines
