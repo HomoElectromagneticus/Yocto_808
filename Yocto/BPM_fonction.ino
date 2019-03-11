@@ -57,7 +57,7 @@ void Check_Roll_Scale() {
 		          // we map only between 0 and 2 in slave mode
               roll_pointer = map(temp_roll_scale,0,30,0,2);//on map que entre 0 et 2 en mode slave
           }
-        Serial.println(temp_roll_scale);
+        //Serial.println(temp_roll_scale);
         }
     }
 }
