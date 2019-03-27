@@ -30,7 +30,7 @@ void Check_Edit_Button_Pattern_Edit()
       switch (edit_button_state){
         //----------------------
         //check le bouton play
-      case 1:
+      case 1: // Play button.
         if(old_selected_mode==0 || old_selected_mode==3){
           button_play_count++;
           if(button_play_count==1){
@@ -50,7 +50,7 @@ void Check_Edit_Button_Pattern_Edit()
         break;
         //-------------------------
         //check bouton scale
-      case 4:
+      case 4: // Scale button.
         // indicates that the scale of the pattern has changed
         pattern_scale_changed=1;//indique que la scale du pattern achanger
         button_scale_count++;
@@ -76,23 +76,36 @@ void Check_Edit_Button_Pattern_Edit()
         //-------------------------
         // check which part is selected - either 1-16 or 17-32
         //check quel part est selectionner soit 1a16 ou 17a32
-      case 8:
+      case 8: // 17..32 button.
         button_pattern_part=1;//section 17 a 32 selectionner
         break;
-      case 16:
+      case 16: // 1..16 button.
         button_pattern_part=0;// section 1 a 16 selectionner
         break;
       }
-      // the two buttons 1-16 and 17-32 pressed
-      //les deux boutons 1-16 et 17-32 appuyer
+      // Both 1..16 and 17..32 buttons are pressed.
       if (edit_button_state==24){
         button_part_switch =!button_part_switch;
       }
-      //Bouton Shift 
-      if (edit_button_state==2) button_shift=1;//bouton shift appuyer
-      else button_shift=0;//bouton shift relacher
-      if (edit_button_state==32) button_encoder=1;
+
+      // If both Shift and Encoder button are pressed, button_state is 34.
+
+      // Shift button.
+      if (edit_button_state==2 || edit_button_state==34) button_shift=1;
+      else button_shift=0;
+
+      // Encoder button.
+      if (edit_button_state==32 || edit_button_state==34) button_encoder=1;
       else button_encoder=0;
+
+      // Check if the pattern part is pressed.
+      if (edit_button_state == 8 || edit_button_state==16 || edit_button_state == 24) {
+        button_pattern_part_pressed=1;
+      }
+      else {
+        button_pattern_part_pressed=0;
+      }
+      
       // Serial.println(button_encoder);//DEBUGG
       //Serial.println(button_init,DEC);//DEBUGG
     }
