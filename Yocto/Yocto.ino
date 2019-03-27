@@ -1,6 +1,8 @@
 
 /* Yocto clone TR808 Sequencer Firmware
 *
+*  v1.2a: -Added TapWrite mode
+*
 *  v1.1a: -Added MIDI dump and restore function
 *         -Fixed sync issues when slaved to MIDI clock
 *
@@ -20,7 +22,7 @@
 *  v1.0a: -Fix les sorties TRIG en S-TRIG
 *         -Améliore BUG de la fonction ROLL
 *
-*  v1.0:  -Programme de base
+*  v1.0:  -Progencoderramme de base
 */
 
 
