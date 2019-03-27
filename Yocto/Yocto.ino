@@ -113,10 +113,12 @@ boolean button_play=0;//etat du bouton play
 byte edit_button_state, old_edit_button_state, debounce_edit_button_state;//etat des boutons edit
 // state of the two buttons of selections of the part of the pattern 0 (the one on the left) and 1 (the one on the right)
 boolean button_pattern_part=0;//etat des deux boutons de selections de la parti du pattern 0 celui de gauche 1 celui de droite
+boolean button_pattern_part_pressed=0;//state of the 2 pattern button buttons, are they pressed or not..
 // the count of the number of presses on the scale buttons from 0 to 3
 byte button_scale_count=0;//compte le nombre d'appuie sur le boutons scale de 0 a 3
 // state of the shift button / variabe that serves to check the edit buttons?
 boolean button_shift=0;// etat du bouton shift//variable qui serve a checker les buttons Edits
+boolean last_button_shift=0;
 // state of the encoder button
 boolean button_encoder=0;//etat du bouton de l'encoder
 // variable corresponds to the play and shift buttons

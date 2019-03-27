@@ -44,12 +44,28 @@ Same as *"Pattern Mode"* but with the sync slaved to external Sync24. In this mo
 Same as *"Pattern Mode"* but with the sync slaved to external MIDI Sync. In this mode Yocto is waiting for a MIDI clock signal.
 
 === Pattern Edit
-Select bank (*SHIFT*) and pattern you want to edit.
-Press *START*. Select an instrument with *INST SELECTOR* and edit steps you want to trig current instruments.
+
+First select bank (*SHIFT*) and the pattern you want to edit.
+Press *START*. Select an instrument with *INST SELECTOR*
+
+==== Step Programming
+On the 16 step switches, toggle steps that you want to trigger for the current instrument.
+
+==== Tap Programming
+Like the original TR-808, it is also possible to use tap entry for patterns. To do this, press the *SHIFT* button at appropriate places in the measure.
+
+==== Clearing steps
+- When sequencer is running you can clear individual steps by switching them off on the 16 steps buttons.
+- When you want to clear the current playing step of the selected instrument use *PUSH ENCODER*.
+- When you want to clear all all steps of the selected instrument, use *SHIFT + PUSH ENCODER*
+
+==== Pattern scale
 Press *SCALE* to change scale. (1/32, 1/16, 1/16t or 1/8).
-To change the number of steps in a pattern, hold *SHIFT* and press one of the 16 step buttons. If you want more than 16 steps, push *17-32 BUTTON* then hold *SHIFT* and press one of the 16 step buttons.
-If a pattern is more than 16 steps long, the first part and second part switch automatically. If you want to switch them manually push *1-16 BUTTON* and *17-32 BUTTON together*.
-When the sequencer is running, you can clear current step of the selected drum voice with a *PUSH ENCODER*.
+<<<<<<< HEAD
+
+==== Pattern length
+Use the buttons *01-16* or *17-32* and press one of the 16 step buttons for the desired length.
+If pattern is more than 16 steps, first part and second part switch automatically. If you want to switch them manually push *1-16 BUTTON* and *17-32 BUTTON together*.
 
 == Track
 
