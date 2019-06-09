@@ -19,6 +19,8 @@ for future versions.
 
   void Reset_Song();
   void Verticalize_Pattern();
+  void Set_CPU_Trig_High();
+  void Set_CPU_Trig_Low();
   void Send_Trig_Out();
   void Reset_Trig_Out();
   void Handle_NoteOff(byte channel, byte pitch, byte velocity);

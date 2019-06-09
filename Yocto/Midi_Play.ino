@@ -56,7 +56,7 @@ void Handle_Stop() {
     Set_Dinsync_Run_Low();
     play = 0;
     step_count = 0;
-    PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
+    Set_CPU_Trig_Low();
 }
 
 
@@ -74,7 +74,7 @@ void Handle_Clock() {
 
     //MODE ROLL
     if(roll_mode && ppqn_count%(roll_scale[scale_type][roll_pointer]/4) == 0 && inst_roll>0) {
-        PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+        Set_CPU_Trig_High();
         //SR.ShiftOut_Update(temp_step_led,inst_roll);
         //Send_Trig_Out();
     }
@@ -82,7 +82,7 @@ void Handle_Clock() {
         SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
         Send_Trig_Out();
         step_changed = 0;
-	    PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+	    Set_CPU_Trig_High();
     }
     else if (!first_play) {
         SR.ShiftOut_Update(temp_step_led,inst_roll);
@@ -103,7 +103,7 @@ void Handle_Clock() {
 
         if (first_play) {
 	        //ppqn_count = 0;   //initialise le compteur PPQN
-            PORTB |= 1<<2;    //envoie une impulsion sur la sorti trig CPU a chaque pas
+            Set_CPU_Trig_High();
             SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
             Send_Trig_Out();
             first_play = 0;   //initialise le flag
@@ -155,7 +155,7 @@ void Handle_Clock() {
             pattern_count = 0;      //reinitilise le compteur de position du song
         }
     }
-    PORTB &= ~(1<<2);         // met a 0 la sorti TRIG CPU
+    Set_CPU_Trig_Low();
 }
 
 
@@ -192,7 +192,7 @@ void Disconnect_Callback() {
     DDRD |= (1<<6);//sortie trig out
     inst_midi_buffer=0;
     SR.ShiftOut_Update(temp_step_led,inst_midi_buffer);
-    PORTB &=~1<<2;
+    Set_CPU_Trig_Low();
     */
     PORTC &= ~(B11111100);//clear les edits leds dans ce mode 
     SR.Led_Step_Write(0);//tous les leds Step Off

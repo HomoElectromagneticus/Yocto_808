@@ -10,20 +10,18 @@ void Count_96PPQN()
 
 
 
-  //PORTB &=~(1<<2);// met a 0 la sorti TRIG CPU
+  //Set_CPU_Trig_Low();
   Reset_Trig_Out();
 
   //MODE ROLL
   if(roll_mode && ppqn_count%roll_scale[scale_type][roll_pointer] == 0 && inst_roll>0){
-    PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+    Set_CPU_Trig_High();
     Send_Trig_Out();
   }
   if(step_changed){
-
     SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
     step_changed=0;
-    PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
-
+    Set_CPU_Trig_High();
   }
   else{
     SR.ShiftOut_Update(temp_step_led,inst_roll);
@@ -62,7 +60,7 @@ void Count_96PPQN()
     //la premiere note apres l'appuie sur start doit etre decale d'une pulsation 
     //de PPQN pour etre calée avec la premiere note de la machine en SLAVE DIN
     if (first_play_A && (ppqn_count==1)){
-      PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+      Set_CPU_Trig_High();
       SR.ShiftOut_Update(temp_step_led,(inst_step_buffer[0][pattern_buffer])&(~inst_mute));
       first_play_A=0;//initialise le flag
     }
@@ -136,7 +134,7 @@ void Count_96PPQN()
   {
   }//tempo pour que la pulse CPU soit egal a 1ms
 
-  PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
+  Set_CPU_Trig_Low();
 
 }
 
@@ -173,11 +171,11 @@ ISR (PCINT3_vect)
   Reset_Trig_Out();
   //PLAY=================================================================
   if(PIND & (1<<4) && play){
-    PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU;
+    Set_CPU_Trig_Low();
 
     //MODE ROLL
     if(roll_mode && ppqn_count%(roll_scale[scale_type][roll_pointer]/4) == 0 && inst_roll>0){//
-      PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+      Set_CPU_Trig_High();
       //SR.ShiftOut_Update(temp_step_led,inst_roll);
       //Send_Trig_Out();
     }
@@ -202,7 +200,7 @@ ISR (PCINT3_vect)
     if(first_play){
       MIDI_Send(0xfa);//Serial1.write(0xfa);//Midi Start  
       ppqn_count=0;
-      PORTB |= 1<<2;//envoie une impulsion sur la sorti trig CPU a chaque pas
+      Set_CPU_Trig_High();
       SR.ShiftOut_Update(temp_step_led,inst_step_buffer[0][pattern_buffer]&(~inst_mute));
       Send_Trig_Out();
       first_play=0;
@@ -237,7 +235,7 @@ ISR (PCINT3_vect)
         }
       }
       step_changed=1;//flag que le pas a change
-      PORTB |= 1<<2;//envoie une impulsion sur la sorti trig CPU a chaque pas
+      Set_CPU_Trig_High();
       if(step_count>=nbr_step[pattern_buffer]){
         step_count=0;
         if(load_pattern_ok){

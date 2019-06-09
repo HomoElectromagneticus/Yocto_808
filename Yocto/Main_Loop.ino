@@ -358,9 +358,9 @@ void loop(){
     //
     SR.ShiftOut_Update(temp_step_led,inst_midi_buffer);
 
-    PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+    Set_CPU_Trig_High();
     delayMicroseconds(10);
-    PORTB &= ~(1<<2);
+    Set_CPU_Trig_Low();
 
     Send_Trig_Out_Midi();
 

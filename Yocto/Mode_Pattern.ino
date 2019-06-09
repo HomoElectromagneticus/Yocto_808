@@ -296,9 +296,9 @@ void Mode_Pattern(){
         // However in practice this usually does not work. Double triggers are better than no
         // triggers at all, so we go for the possible double trigger for now:
         SR.Inst_Send(1<<selected_inst);
-        PORTB |= (1<<2);
+        Set_CPU_Trig_High();
         delayMicroseconds(10);
-        PORTB &= ~(1<<2);
+        Set_CPU_Trig_Low();
         // Make sure the change is saved.
         selected_pattern_edited=1;
         selected_pattern_edited_saved=1;
