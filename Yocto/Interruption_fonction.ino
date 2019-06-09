@@ -16,10 +16,10 @@ void Count_96PPQN()
   //MODE ROLL
   if(roll_mode && ppqn_count%roll_scale[scale_type][roll_pointer] == 0 && inst_roll>0){
     Set_CPU_Trig_High();
-    Send_Trig_Out();
   }
   if(step_changed){
     SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
+    Send_Trig_Out();
     step_changed=0;
     Set_CPU_Trig_High();
   }
