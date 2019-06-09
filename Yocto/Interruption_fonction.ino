@@ -13,18 +13,19 @@ void Count_96PPQN()
   //Set_CPU_Trig_Low();
   Reset_Trig_Out();
 
-  //MODE ROLL
-  if(roll_mode && ppqn_count%roll_scale[scale_type][roll_pointer] == 0 && inst_roll>0){
-    Set_CPU_Trig_High();
-  }
-  if(step_changed){
+  if (step_changed) {
+    step_changed=0;
     SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
     Send_Trig_Out();
-    step_changed=0;
     Set_CPU_Trig_High();
   }
-  else{
+  else {
     SR.ShiftOut_Update(temp_step_led,inst_roll);
+    //MODE ROLL
+    if (roll_mode && ppqn_count%roll_scale[scale_type][roll_pointer] == 0 && inst_roll>0) {
+      Send_Trig_Out();
+      Set_CPU_Trig_High();
+    }
   }
 
   ppqn_count++;//incremente le compteur PPQN96
