@@ -1,44 +1,5 @@
 #define NOTE_ON 0x90 //note on sur canal 1
 
-/////////////////////////////////////////////////////////////////////////////////
-//Interruption midi en mode midi play
-// ce qui est different de l interruption en mode pattern play c'est
-//que le shift register des inst est update suivant la note midi recu
-/////////////////////////////////////////////////////////////////////////////////
-/*void Midi_Synchro_Midi_Play(){ 
- 
- if(Serial1.available()>0){
- byte data;
- data = Serial1.read();//enregistre le byte recu dans la variable data
- Serial1.write(data);//echo vers la sorti MIDI OUT de l'entrée MIDI
- switch (data){
- 
- //MIDI START
- case 0xfa:
- PORTD |= (1<<5);// met au niveau haut le sorti Din start
- play=1;
- ppqn_count=0;
- first_play=1;
- break;
- 
- //MIDI STOP
- case 0xfc:
- PORTD&=~(1<<5);//met a 0 la sorti DIN start
- play=0;
- step_count=0;
- break;
- 
- //MIDI CLOCK
- case 0xf8:
- PORTD|=(1<<4);//met a 1 la clock DIN
- delayMicroseconds (2000);//delay neccessaire pour que le cycle de la clock soit correct en DIN_CLK
- PORTD&=~(1<<4);//met a o la clock DIN
- break;
- 
- }
- }  
- }*/
-
 
 void Handle_NoteOn(byte channel, byte pitch, byte velocity) {
     if (velocity == 0){
@@ -84,7 +45,7 @@ void Handle_NoteOff(byte channel, byte pitch, byte velocity) {
 
 
 void Handle_Start() {
-    PORTD |= (1<<5);// met au niveau haut le sorti Din start
+    Set_Dinsync_Run_High();
     play = 1;
     ppqn_count = 0;
     first_play = 1;
@@ -92,7 +53,7 @@ void Handle_Start() {
 
 
 void Handle_Stop() {
-    PORTD &= ~(1<<5);//met a 0 la sorti DIN start
+    Set_Dinsync_Run_Low();
     play = 0;
     step_count = 0;
     PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
@@ -110,10 +71,6 @@ void Handle_Clock() {
     else {
         Set_Dinsync_Clock_High();
     }
-    
-
-    //bitWrite(PORTD,4,!(bitRead (PIND,4)));
-    //PORTB &= ~(1<<2);// met a 0 la sorti TRIG CPU
 
     //MODE ROLL
     if(roll_mode && ppqn_count%(roll_scale[scale_type][roll_pointer]/4) == 0 && inst_roll>0) {

@@ -16,12 +16,11 @@ void Count_96PPQN()
   //MODE ROLL
   if(roll_mode && ppqn_count%roll_scale[scale_type][roll_pointer] == 0 && inst_roll>0){
     PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
-
+    Send_Trig_Out();
   }
   if(step_changed){
 
     SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
-    Send_Trig_Out();
     step_changed=0;
     PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
 
@@ -53,8 +52,8 @@ void Count_96PPQN()
     if(first_play){
       MIDI_Send(0xfa);//Serial1.write(0xfa);//Midi Start
       ppqn_count=0;//initialise le compteur PPQN
-      PORTD |= (1<<5);// met au niveau haut le sorti Din start
-      PORTD &= ~(1<<4);// met au niveau bas le sorti Din 
+      Set_Dinsync_Run_High();
+      Set_Dinsync_Clock_Low();
       Send_Trig_Out();
       first_play=0;
     }
@@ -118,7 +117,7 @@ void Count_96PPQN()
     }
     step_count=0;//reinitialise a 0 le step compteur
     debut_mesure_count=0;
-    PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+    Set_Dinsync_Run_Low();
     if (tempo_led_count>=48){
       tempo_led_count=0;//si le compteur egale un temps on le reinitialise
       tempo_led_flag=!tempo_led_flag;//on alterne la valeur du flag de la led tempo.
@@ -157,7 +156,7 @@ void Count_Clock() {
     if (dinsync_clock_timeout != 0) {
       dinsync_clock_timeout--;
       if (dinsync_clock_timeout == 0) {
-        PORTD &= ~(1<<4); // Lower the clock signal.
+        Set_Dinsync_Clock_Low();
       }
     }
   }

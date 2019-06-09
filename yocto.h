@@ -28,6 +28,8 @@ for future versions.
   void Mode_Synchro(byte mode);
   void Set_Dinsync_Clock_High();
   void Set_Dinsync_Clock_Low();
+  void Set_Dinsync_Run_High();
+  void Set_Dinsync_Run_Low();
   void Disconnect_Callback();
   void Handle_Stop();
   void Handle_Clock();
