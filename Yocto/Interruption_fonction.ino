@@ -8,22 +8,20 @@ void Count_96PPQN()
 
   //  if ( selected_mode == MIDI_PLAY )  return;
 
-
-
   //Set_CPU_Trig_Low();
   Reset_Trig_Out();
 
   if (step_changed) {
     step_changed=0;
     SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
-    Send_Trig_Out();
+    Send_Trig_Out((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll);
     Set_CPU_Trig_High();
   }
   else {
     SR.ShiftOut_Update(temp_step_led,inst_roll);
     //MODE ROLL
     if (roll_mode && ppqn_count%roll_scale[scale_type][roll_pointer] == 0 && inst_roll>0) {
-      Send_Trig_Out();
+      Send_Trig_Out(inst_roll);
       Set_CPU_Trig_High();
     }
   }
@@ -53,7 +51,7 @@ void Count_96PPQN()
       ppqn_count=0;//initialise le compteur PPQN
       Set_Dinsync_Run_High();
       Set_Dinsync_Clock_Low();
-      Send_Trig_Out();
+      //Send_Trig_Out();
       first_play=0;
     }
     // the first note after the push on start needs to be shifted over / delayed one pulse
@@ -122,13 +120,15 @@ void Count_96PPQN()
       tempo_led_flag=!tempo_led_flag;//on alterne la valeur du flag de la led tempo.
     }
   }
-  //incrementer la clock de la synchro DIN tous les 4 PPQN96 pour avoir PPQN24
+
+  // Send DinSync clock (at 24ppqn).
   if((ppqn_count%2)==1){ //modulo de 2 = 1 car la clock PPQN et la clock din sont decaler d'un demi cylce 
     bitWrite(PORTD,4,!(bitRead (PIND,4)));
   }
-  //Incrementer la clock Midi tous les 4 PPQN96 pour avoir PPQN24
+
+  // Send MIDI beat clock (at 24ppqn).
   if((ppqn_count%4)==1){
-    MIDI_Send(0xf8);//Serial1.write (0xf8);
+    MIDI_Send(0xf8);
   }
 
   for (int tempx=0; tempx<500; tempx++)
@@ -170,25 +170,25 @@ void Count_Clock() {
 ISR (PCINT3_vect)
 {
   Reset_Trig_Out();
+
   //PLAY=================================================================
   if(PIND & (1<<4) && play){
-    Set_CPU_Trig_Low();
 
-    //MODE ROLL
-    if(roll_mode && ppqn_count%(roll_scale[scale_type][roll_pointer]/4) == 0 && inst_roll>0){//
-      Set_CPU_Trig_High();
-      //SR.ShiftOut_Update(temp_step_led,inst_roll);
-      //Send_Trig_Out();
-    }
-    //Si le pas a changer
-    if(step_changed){
-      SR.ShiftOut_Update(temp_step_led,inst_step_buffer[step_count][pattern_buffer]&(~inst_mute));
-      Send_Trig_Out();
+    if (step_changed) {
       step_changed=0;
+      SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
+      Send_Trig_Out((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll);
+      Set_CPU_Trig_High();
     }
-    else{
+    else {
       SR.ShiftOut_Update(temp_step_led,inst_roll);
+      //MODE ROLL
+      if (roll_mode && ppqn_count%(roll_scale[scale_type][roll_pointer]/4) == 0 && inst_roll>0) {
+        Send_Trig_Out(inst_roll);
+        Set_CPU_Trig_High();
+      }
     }
+
     //pdate le clignotements des leds
     if (tempo_led_count>=12) {
       tempo_led_count=0;//si le compteur egale un temps on le reinitialise
@@ -203,7 +203,7 @@ ISR (PCINT3_vect)
       ppqn_count=0;
       Set_CPU_Trig_High();
       SR.ShiftOut_Update(temp_step_led,inst_step_buffer[0][pattern_buffer]&(~inst_mute));
-      Send_Trig_Out();
+      Send_Trig_Out(inst_step_buffer[0][pattern_buffer]&(~inst_mute));
       first_play=0;
     }
     MIDI_Send(0xf8);//Serial1.write (0xf8);//MIDI CLOCK Tick
@@ -236,7 +236,7 @@ ISR (PCINT3_vect)
         }
       }
       step_changed=1;//flag que le pas a change
-      Set_CPU_Trig_High();
+      //Set_CPU_Trig_High();
       if(step_count>=nbr_step[pattern_buffer]){
         step_count=0;
         if(load_pattern_ok){
@@ -269,6 +269,12 @@ ISR (PCINT3_vect)
       tempo_led_flag=!tempo_led_flag;//on alterne la valeur du flag de la led tempo.
     }
   }
+
+  for (int tempx=0; tempx<500; tempx++)
+  {
+  }//tempo pour que la pulse CPU soit egal a 1ms
+
+  Set_CPU_Trig_Low();
 }
 
 void MIDI_Send(byte OutByte)

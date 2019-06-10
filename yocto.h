@@ -21,7 +21,7 @@ for future versions.
   void Verticalize_Pattern();
   void Set_CPU_Trig_High();
   void Set_CPU_Trig_Low();
-  void Send_Trig_Out();
+  void Send_Trig_Out(int trig_outs);
   void Reset_Trig_Out();
   void Handle_NoteOff(byte channel, byte pitch, byte velocity);
   void Check_Midi_Channel();

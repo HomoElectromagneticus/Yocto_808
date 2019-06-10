@@ -64,7 +64,7 @@ void Handle_Clock() {
     Reset_Trig_Out();
 
     if (first_play) {
-        // Old dinsync devices have problems if the the CLK comes too quickly after RUN.
+        // Old dinsync devices have problems if the CLK comes too quickly after RUN.
         // Therefor we delay it with Timer3 for 2ms.
         dinsync_first_clock_timeout = 2;
     }
@@ -72,42 +72,47 @@ void Handle_Clock() {
         Set_Dinsync_Clock_High();
     }
 
-    //MODE ROLL
-    if(roll_mode && ppqn_count%(roll_scale[scale_type][roll_pointer]/4) == 0 && inst_roll>0) {
-        Set_CPU_Trig_High();
-        //SR.ShiftOut_Update(temp_step_led,inst_roll);
-        //Send_Trig_Out();
+    if (step_changed) {
+      step_changed=0;
+      SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
+      Send_Trig_Out((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll);
+      Set_CPU_Trig_High();
     }
-    if(step_changed) {
-        SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
-        Send_Trig_Out();
-        step_changed = 0;
-	    Set_CPU_Trig_High();
-    }
-    else if (!first_play) {
+    else {
+      if (!first_play) {
         SR.ShiftOut_Update(temp_step_led,inst_roll);
+      }
+      //MODE ROLL
+      if (roll_mode && ppqn_count%(roll_scale[scale_type][roll_pointer]/4) == 0 && inst_roll>0) {
+        Send_Trig_Out(inst_roll);
+        Set_CPU_Trig_High();
+      }
     }
 
     ppqn_count++;
     tempo_led_count++;
 
     //PLAY=================================================================
-    if(play) {
-        //Update clignotement des leds
+    if (play) {
+        // Led handling.
         if (tempo_led_count >= 12) {
-            tempo_led_count = 0;//si le compteur egale un temps on le reinitialise
-            tempo_led_flag_block =! tempo_led_flag_block;//clignote au tempo
+            tempo_led_count = 0; // Re-initialize the flag.
+            tempo_led_flag_block =! tempo_led_flag_block; // Blink with tempo.
         }
-        if(ppqn_count >= 3) tempo_led_flag = 0;//on alterne la valeur du flag de la led tempo.
-        else tempo_led_flag = 1;
+        if (ppqn_count >= 3) {
+            tempo_led_flag = 0; // We alternate the flag of the tempo LED.
+        }
+        else {
+            tempo_led_flag = 1;
+        }
 
         if (first_play) {
-	        //ppqn_count = 0;   //initialise le compteur PPQN
-            Set_CPU_Trig_High();
+            first_play = 0; // Re-initialize the flag.
             SR.ShiftOut_Update(temp_step_led,((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll));
-            Send_Trig_Out();
-            first_play = 0;   //initialise le flag
+            Send_Trig_Out((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute)|inst_roll);
+            Set_CPU_Trig_High();
         }
+
         if (ppqn_count >= pattern_scale[pattern_buffer]/4) {
             ppqn_count = 0;
             step_count++;
