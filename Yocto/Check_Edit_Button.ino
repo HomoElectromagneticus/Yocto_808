@@ -31,7 +31,7 @@ void Check_Edit_Button_Pattern_Edit()
         //----------------------
         //check le bouton play
       case 1: // Play button.
-        if(old_selected_mode==0 || old_selected_mode==3){
+        if (sync_mode == MASTER) {
           button_play_count++;
           if(button_play_count==1){
             play=1;
@@ -150,7 +150,7 @@ void Check_Edit_Button_Pattern()
         //----------------------
         //check le bouton play
       case 1:
-        if(sync_mode == MASTER){//selected_mode==0 || selected_mode==3){
+        if (sync_mode == MASTER) {
           button_play_count++;
           if(button_play_count==1){
             //ppqn_count=0;
@@ -165,7 +165,6 @@ void Check_Edit_Button_Pattern()
             first_stop=1;
           }
         }
-        //Serial.println(play,DEC);//DEBUGG
         break;
         //-------------------------
         //check bouton scale
