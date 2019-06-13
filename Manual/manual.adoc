@@ -61,7 +61,6 @@ Like the original TR-808, it is also possible to use tap entry for patterns. To 
 
 ==== Pattern scale
 Press *SCALE* to change scale. (1/32, 1/16, 1/16t or 1/8).
-<<<<<<< HEAD
 
 ==== Pattern length
 Use the buttons *01-16* or *17-32* and press one of the 16 step buttons for the desired length.
