@@ -81,7 +81,7 @@ void loop(){
       if(play){
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
-        PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+        Set_Dinsync_Run_Low();
         button_play_count=0;
       }
     }
@@ -103,7 +103,7 @@ void loop(){
       if(play){
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
-        PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+        Set_Dinsync_Run_Low();
         button_play_count=0;
       }
     }
@@ -133,7 +133,7 @@ void loop(){
       if(play){
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
-        PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+        Set_Dinsync_Run_Low();
         button_play_count=0;
       }
     }
@@ -161,7 +161,7 @@ void loop(){
       if(play){
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi
-        PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+        Set_Dinsync_Run_Low();
         button_play_count=0;
       }
     }
@@ -188,7 +188,7 @@ void loop(){
       if(play){
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
-        PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+        Set_Dinsync_Run_Low();
         button_play_count=0;
       }
       //TapeTempoInit();
@@ -214,7 +214,7 @@ void loop(){
       if(play){
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
-        PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+        Set_Dinsync_Run_Low();
         button_play_count=0;
       }
       TapeTempoInit();
@@ -240,7 +240,7 @@ void loop(){
       if(play){
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
-        PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+        Set_Dinsync_Run_Low();
         button_play_count=0;
       }
     }
@@ -263,7 +263,7 @@ void loop(){
       if(play){
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi
-        PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+        Set_Dinsync_Run_Low();
         button_play_count=0;
       }
       MIDI.setHandleClock(Handle_Clock);// Callback Clock MIDI
@@ -296,7 +296,7 @@ void loop(){
       if(play) {
         play=0;
         MIDI_Send(0xfc);//envoi un stop midi
-        PORTD &= ~(1<<5);//met au niveau bas la sorti DIN start =>STOP
+        Set_Dinsync_Run_Low();
         button_play_count=0;
       }
       //initialise les leds suivant le channel selectionner et les sortie des instru a 0
@@ -358,9 +358,9 @@ void loop(){
     //
     SR.ShiftOut_Update(temp_step_led,inst_midi_buffer);
 
-    PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+    Set_CPU_Trig_High();
     delayMicroseconds(10);
-    PORTB &= ~(1<<2);
+    Set_CPU_Trig_Low();
 
     Send_Trig_Out_Midi();
 

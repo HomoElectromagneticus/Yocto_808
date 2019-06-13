@@ -9,11 +9,17 @@ void Reset_Trig_Out()
   digitalWrite(TRIG3_PIN, HIGH);
 }
 
-void Send_Trig_Out()
+void Send_Trig_Out(int trig_outs)
 {
-  if (bitRead((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute),TRIG1)) digitalWrite(TRIG1_PIN,LOW);
-  if (bitRead((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute),TRIG2)) digitalWrite(TRIG2_PIN,LOW);
-  if (bitRead((inst_step_buffer[step_count][pattern_buffer])&(~inst_mute),TRIG3)) digitalWrite(TRIG3_PIN,LOW);
+  if (bitRead(trig_outs, TRIG1)) {
+    digitalWrite(TRIG1_PIN, LOW);
+  }
+  if (bitRead(trig_outs, TRIG2)) {
+    digitalWrite(TRIG2_PIN, LOW);
+  }
+  if (bitRead(trig_outs, TRIG3)) {
+    digitalWrite(TRIG3_PIN, LOW);
+  }
 }
 
 void Send_Trig_Out_Midi()

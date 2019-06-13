@@ -19,7 +19,9 @@ for future versions.
 
   void Reset_Song();
   void Verticalize_Pattern();
-  void Send_Trig_Out();
+  void Set_CPU_Trig_High();
+  void Set_CPU_Trig_Low();
+  void Send_Trig_Out(int trig_outs);
   void Reset_Trig_Out();
   void Handle_NoteOff(byte channel, byte pitch, byte velocity);
   void Check_Midi_Channel();
@@ -28,6 +30,8 @@ for future versions.
   void Mode_Synchro(byte mode);
   void Set_Dinsync_Clock_High();
   void Set_Dinsync_Clock_Low();
+  void Set_Dinsync_Run_High();
+  void Set_Dinsync_Run_Low();
   void Disconnect_Callback();
   void Handle_Stop();
   void Handle_Clock();

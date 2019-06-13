@@ -850,11 +850,11 @@ void Play_Version() {
     byte count = 0;
     while ( count < major_version ) {
       PORTC |= (1 << 7);     
-      PORTB |= (1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+      Set_CPU_Trig_High();
       SR.ShiftOut_Update(temp_step_led,0b10);
       delay(200);
       PORTC &= ~(1 << 7);     
-      PORTB &= ~(1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+      Set_CPU_Trig_Low();
       SR.ShiftOut_Update(temp_step_led,0);
       delay(100);
       count++;
@@ -862,11 +862,11 @@ void Play_Version() {
     count=0;
     while ( count < minor_version ) {
       PORTC |= (1 << 6);     
-      PORTB |= (1<<2);// met a 0 la sorti TRIG CPU
+      Set_CPU_Trig_High();
       SR.ShiftOut_Update(temp_step_led,0b10000000);
       delay(200);
       PORTC &= ~(1 << 6);     
-      PORTB &= ~(1<<2);//envoie une impulsion sur la sorti trig CPU a chaque pas
+      Set_CPU_Trig_Low();
       SR.ShiftOut_Update(temp_step_led,0);
       delay(100);
       count++;

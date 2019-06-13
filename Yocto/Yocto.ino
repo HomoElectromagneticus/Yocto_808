@@ -325,6 +325,13 @@ void setup() {
   Load_Pattern();//on load le pattern 0
 }
 
+void Set_CPU_Trig_High() {
+  PORTB |= (1<<2);
+}
+
+void Set_CPU_Trig_Low() {
+  PORTB &= ~(1<<2);
+}
 
 void Chenillard() {
   int temp=0;//variable pour le chenillard
