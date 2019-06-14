@@ -3,11 +3,11 @@
 #include "Arduino.h"
 
 
-#define _latchPinOut 4
-#define _dataPinOut 5
-#define _latchPinIn 3
-#define _dataPinIn  6
-#define _clockPin 7
+#define _latchPinOut 4      //for latching the LEDs and instrument trig registers
+#define _dataPinOut 5       //for driving the LEDs and instrument trig registers
+#define _latchPinIn 3       //for latching the step button registers
+#define _dataPinIn  6       //for reading the step button registers
+#define _clockPin 7         //for clocking all the shift registers
 
 
 class TR_SEQ
