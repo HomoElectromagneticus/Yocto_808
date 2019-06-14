@@ -1,4 +1,3 @@
-
 /* Yocto clone TR808 Sequencer Firmware
 *
 *  v1.2b: -Roll mode for triggers now works
@@ -58,10 +57,12 @@
 #define NBR_PTRN 16 //nombre de pattern par banque
 #define MAX_PATTERN_SONG 255 //nombre max de pattern par song soit 256 parce qu'on compte le 0
 
-#define TRIG1_PIN 14// attention Trig 3 sur le schema correspond a Trig 1 sur les sortie de la Yocto et vis et versa
-#define TRIG2_PIN 1
-#define TRIG3_PIN 0
-#define TRIG_CPU_PIN 2
+// TRIG 3 on the schematic corresponds to TRIG 1 on the Yocto's output and
+// vice versa
+#define TRIG1_PIN 14      // pin 20 on the micro
+#define TRIG2_PIN 1       // pin 2 on the micro
+#define TRIG3_PIN 0       // pin 1 on the micro
+#define TRIG_CPU_PIN 2    // pin 3 on the micro
 
 #define MASTER 0
 #define DIN_SLAVE 1
