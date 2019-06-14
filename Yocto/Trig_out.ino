@@ -2,35 +2,22 @@
 //Fonction des sorties Trig
 /////////////////////////////////
 
-void Reset_Trig_Out()
-{
-  digitalWrite(TRIG1_PIN, HIGH);
-  digitalWrite(TRIG2_PIN, HIGH);
-  digitalWrite(TRIG3_PIN, HIGH);
+void Reset_Trig_Out() {
+  // set all of the trig output pins high
+  PORTB |= 0b11;        //TRIG1 and TRIG2, the port must be written all at once
+  PORTD |= (1 << 6);    //TRIG3
 }
 
-void Send_Trig_Out(int trig_outs)
-{
-  if (bitRead(trig_outs, TRIG1)) {
-    digitalWrite(TRIG1_PIN, LOW);
-  }
-  if (bitRead(trig_outs, TRIG2)) {
-    digitalWrite(TRIG2_PIN, LOW);
-  }
-  if (bitRead(trig_outs, TRIG3)) {
-    digitalWrite(TRIG3_PIN, LOW);
-  }
+void Send_Trig_Out(int trig_outs) {
+  // set the trig output pins low to send a trigger
+  if (bitRead(trig_outs, TRIG1)) digitalWrite(TRIG1_PIN, LOW);
+  if (bitRead(trig_outs, TRIG2)) digitalWrite(TRIG2_PIN, LOW);
+  if (bitRead(trig_outs, TRIG3)) PORTD &= -(1 << 6);
 }
 
-void Send_Trig_Out_Midi()
-{
+void Send_Trig_Out_Midi() {
+  // set the trig output pins low to send a trigger (from MIDI)
   if (bitRead(inst_midi_buffer,TRIG1)) digitalWrite(TRIG1_PIN,LOW);
   if (bitRead(inst_midi_buffer,TRIG2)) digitalWrite(TRIG2_PIN,LOW);
-  if (bitRead(inst_midi_buffer,TRIG3)) digitalWrite(TRIG3_PIN,LOW);
+  if (bitRead(inst_midi_buffer,TRIG3)) PORTD &= -(1 << 6);;
 }
-
-/*void Test_Trig_Out()
- {
- PORTB |= ((1<<1)|(1<<0));
- TRIG1_PORT |= (1<<6);
- }*/
