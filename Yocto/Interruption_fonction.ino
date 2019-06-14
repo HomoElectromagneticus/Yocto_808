@@ -131,10 +131,6 @@ void Count_96PPQN()
     MIDI_Send(0xf8);
   }
 
-  for (int tempx=0; tempx<500; tempx++)
-  {
-  }//tempo pour que la pulse CPU soit egal a 1ms
-
   Set_CPU_Trig_Low();
 
 }
@@ -269,10 +265,6 @@ ISR (PCINT3_vect)
       tempo_led_flag=!tempo_led_flag;//on alterne la valeur du flag de la led tempo.
     }
   }
-
-  for (int tempx=0; tempx<500; tempx++)
-  {
-  }//tempo pour que la pulse CPU soit egal a 1ms
 
   Set_CPU_Trig_Low();
 }
