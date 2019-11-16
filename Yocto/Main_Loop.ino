@@ -179,108 +179,75 @@ void loop(){
     break;
 
     //================================================
-  case SONG_EDIT:
+    //================================================
+  case SONG_MIDI_MASTER:
+  case SONG_DIN_SLAVE:
+  case SONG_MIDI_SLAVE:
     // INIT---------------------------------------
-    if(old_selected_mode!=SONG_EDIT){
-      old_selected_mode=SONG_EDIT;
+    if (!play && old_selected_mode!=selected_mode) {
+      old_selected_mode=selected_mode;
       Disconnect_Callback();
-      Mode_Synchro(0);//mode master synchro
-      if(play){
-        play=0;
-        MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
-        Set_Dinsync_Run_Low();
-        button_play_count=0;
+      switch(selected_mode) {
+        case PATTERN_MIDI_MASTER:
+          Mode_Synchro(0); //mode master synchro
+          TapeTempoInit();
+          break;
+        case PATTERN_DIN_SLAVE:
+          Mode_Synchro(1); //Din slave synchro
+          break;
+        case PATTERN_MIDI_SLAVE:
+          Mode_Synchro(2); //MIDI slave synchro
+          MIDI.setHandleClock(Handle_Clock);    // Callback Clock MIDI
+          MIDI.setHandleStart(Handle_Start);    // Callback Start MIDI
+          MIDI.setHandleContinue(Handle_Start); // Callback Continue MIDI
+          MIDI.setHandleStop(Handle_Stop);      // Callback Stop MIDI
+          break;
       }
-      //TapeTempoInit();
+      if(mute_mode)mute_mode=0;
+      inst_mute=0;
     }
 
-    Check_BPM();
-    // Timer1.initialize(timer_time); // set a timer of length in microseconds 
+    if (first_play) {
+      sync_fallback = sync_mode;
+    }
+
+    if (sync_mode == MASTER) {
+      Check_BPM();
+      TestTapeTempo();
+    }
+    else if (sync_mode == MIDI_SLAVE) {
+      MIDI.read();
+    } 
+
     Check_Edit_Button_Song();
-    //TestTapeTempo();
+    Mode_Song_Play();
+    Update_Pattern_EEprom();
+    Update_Song_EEprom();
+    Update_Pattern_Led();
+    Update_Song_Led();
+    break;
+    //================================================
+  case SONG_EDIT:
+    // INIT----------------------------------------
+    if (old_selected_mode!=SONG_EDIT) {
+      old_selected_mode=SONG_EDIT;
+      if (!play) {
+        Mode_Synchro(sync_fallback);
+      }
+    }
+    if (sync_mode == MASTER) {
+      Check_BPM();
+    }
+    else if (sync_mode == MIDI_SLAVE) {
+      MIDI.read();
+    }
+
+    Check_Edit_Button_Song();
     Mode_Song_Edit();
     Update_Pattern_EEprom();
     Update_Song_EEprom();
     Update_Song_Led();
     break;
-
-    //================================================
-  case SONG_MIDI_MASTER:
-    // INIT---------------------------------------
-    if(old_selected_mode!=SONG_MIDI_MASTER){
-      old_selected_mode=SONG_MIDI_MASTER;
-      Disconnect_Callback();
-      Mode_Synchro(0);//mode master synchro
-      if(play){
-        play=0;
-        MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
-        Set_Dinsync_Run_Low();
-        button_play_count=0;
-      }
-      TapeTempoInit();
-      
-    }
-    Check_BPM();
-    Check_Edit_Button_Song();
-    TestTapeTempo();
-    Update_Song_EEprom();
-    Update_Pattern_EEprom();
-    Mode_Song_Play();
-    Update_Song_Led();
-
-    break;
-
-    //================================================
-  case SONG_DIN_SLAVE:
-    // INIT---------------------------------------
-    if(old_selected_mode!=SONG_DIN_SLAVE){
-      old_selected_mode=SONG_DIN_SLAVE;
-      Disconnect_Callback();
-      Mode_Synchro(1);//mode master synchro
-      if(play){
-        play=0;
-        MIDI_Send(0xfc);//envoi un stop midi (send a MIDI stop)
-        Set_Dinsync_Run_Low();
-        button_play_count=0;
-      }
-    }
-
-    //Check_BPM();
-    Check_Edit_Button_Song();
-    Mode_Song_Play();
-    Update_Pattern_EEprom();
-    Update_Song_EEprom();
-    Update_Song_Led();
-    break;
-
-    //================================================
-  case SONG_MIDI_SLAVE:
-    // INIT---------------------------------------
-    if(old_selected_mode!=SONG_DIN_SLAVE){
-      old_selected_mode=SONG_DIN_SLAVE;
-      Disconnect_Callback();
-      Mode_Synchro(2);//mode master synchro
-      if(play){
-        play=0;
-        MIDI_Send(0xfc);//envoi un stop midi
-        Set_Dinsync_Run_Low();
-        button_play_count=0;
-      }
-      MIDI.setHandleClock(Handle_Clock);// Callback Clock MIDI
-      MIDI.setHandleStart(Handle_Start);// Callback Start MIDI
-      MIDI.setHandleContinue(Handle_Start);// Callback Stop MIDI
-      MIDI.setHandleStop(Handle_Stop);// Callback Stop MIDI
-    }
-
-    //Check_BPM();
-    MIDI.read();
-    Check_Edit_Button_Song();
-    Mode_Song_Play();
-    Update_Pattern_EEprom();
-    Update_Song_EEprom();
-    Update_Song_Led();
-    break;
-
     //================================================
   case MIDI_PLAY:
     // INIT---------------------------------------
@@ -306,7 +273,7 @@ void loop(){
       SR.ShiftOut_Update(temp_step_led,0);
       for (int ct=0;ct<12;ct++) noteOnOff[ct]=0;
       Load_Midi_Note();
-    } 
+    }
 
     // Check user interface
     Check_Edit_Button_Setup();
