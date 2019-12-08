@@ -33,7 +33,7 @@ void loop(){
 
     if (first_play) {
       sync_fallback = sync_mode;
-    } 
+    }
 
     if (sync_mode == MASTER) {
       Check_BPM();
@@ -41,7 +41,7 @@ void loop(){
     }
     else if (sync_mode == MIDI_SLAVE) {
       MIDI.read();
-    } 
+    }
 
     Check_Edit_Button_Pattern();
     Check_Roll_Scale();
@@ -188,14 +188,14 @@ void loop(){
       old_selected_mode=selected_mode;
       Disconnect_Callback();
       switch(selected_mode) {
-        case PATTERN_MIDI_MASTER:
+        case SONG_MIDI_MASTER:
           Mode_Synchro(0); //mode master synchro
           TapeTempoInit();
           break;
-        case PATTERN_DIN_SLAVE:
+        case SONG_DIN_SLAVE:
           Mode_Synchro(1); //Din slave synchro
           break;
-        case PATTERN_MIDI_SLAVE:
+        case SONG_MIDI_SLAVE:
           Mode_Synchro(2); //MIDI slave synchro
           MIDI.setHandleClock(Handle_Clock);    // Callback Clock MIDI
           MIDI.setHandleStart(Handle_Start);    // Callback Start MIDI
@@ -217,7 +217,7 @@ void loop(){
     }
     else if (sync_mode == MIDI_SLAVE) {
       MIDI.read();
-    } 
+    }
 
     Check_Edit_Button_Song();
     Mode_Song_Play();

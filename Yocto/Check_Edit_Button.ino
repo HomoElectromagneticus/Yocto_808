@@ -111,7 +111,7 @@ void Check_Edit_Button_Pattern_Edit()
     }
   }
   // we retain the state of the buttons
-  old_edit_button_state= reading;// on retient l'etat des boutons
+  old_edit_button_state = reading;
 }
 
 //=============================================================================
@@ -121,7 +121,6 @@ void Check_Edit_Button_Pattern()
   if (sync_mode != MASTER)
   {
     // check the status play in DIN_SYNC mode
-    //Check la statut play en mdoe DIN_SYNC
     boolean din_start_state = PIND & (1<<5);
     if (din_start_state != old_din_start_state){
       if(din_start_state){//si l'entrée DIN Start est HIGH
@@ -238,14 +237,12 @@ void Check_Edit_Button_Setup()
 void Check_Edit_Button_Song()
 {
   //-------------------------------------------------------------------------------------
-  if (selected_mode ==5 || selected_mode ==6){//le mode selectionne est il SONG_DIN_SLAVe ou SONG_MIDI_SLAVE
-    //Check la statut play en mdoe DIN_SYNC
+  if (sync_mode != MASTER) {
+    // check the status play in DIN_SYNC mode
     boolean din_start_state = PIND & (1<<5);
     if (din_start_state != old_din_start_state){
       if(din_start_state){//si l'entrée DIN Start est HIGH
         first_play=1;// indiquer le premier play
-        first_play_A=1;//un deuxime flag de jouer le premier (cf interrupt)
-        first_play_B=1;
         play=1;
 
       }
@@ -256,6 +253,8 @@ void Check_Edit_Button_Song()
       old_din_start_state = din_start_state;
     }
   }
+
+  //-------------------------------------------------------
   byte reading= SR.Button_SR_Read(2);//stock l'etat des boutons
   if (reading!=old_edit_button_state){
     millis_debounce_edit_button=millis();
@@ -263,60 +262,67 @@ void Check_Edit_Button_Song()
   if((millis()-millis_debounce_edit_button)>=DEBOUNCE){
     if(reading!=edit_button_state){
       edit_button_state=reading;
-      //---------------------------------------------------------------------------------
-      if (selected_mode== 4 || selected_mode==7){//le mode selectionne est il SONG_MIDI_MASTER
-        switch (edit_button_state){
-          //----------------------
-          //check le bouton play
-        case 1:   
-          button_play_count++;
-          if(button_play_count==1){
-            play=1;
-            first_play=1;//permet de jouer le premier pas (cf interrupt)
-            first_play_A=1;//un deuxime flag de jouer le premier (cf interrupt)
-            first_play_B=1;
+      switch (edit_button_state){
+        case 1: // Play button
+          if (sync_mode == MASTER) {
+            button_play_count++;
+            if(button_play_count==1){
+              play=1;
+              first_play=1;//permet de jouer le premier pas (cf interrupt)
+              first_play_A=1;//un deuxime flag de jouer le premier (cf interrupt)
+              first_play_B=1;
+            }
+            else if (button_play_count==2){
+              play=0;
+              button_play_count=0;
+              first_stop=1;
+            }
           }
-          else if (button_play_count==2){
-            play=0;
-            button_play_count=0;
-            first_stop=1;
-          } 
           break;
-        }
-      }
-
-      //--------------------
-      //Bouton Shift 
-      if (edit_button_state==2) button_shift=1;//bouton shift appuyer
-      else button_shift=0;//bouton shift relacher
-      //--------------------
-      //Bouton Next 
-      if (edit_button_state==4){
-        button_next=1;//bouton shift appuyer
-      }
-      else{
-        button_next=0;//bouton shift relacher
-        first_push_next=0;//flag que le bouton next a été relacher
       }
       //--------------------
-      //Bouton End 
-      if (edit_button_state==8){
-        button_end=1;//bouton shift appuyer
+      // Shift button
+      if (edit_button_state==2) {
+        button_shift=1; // Shift pressed.
       }
       else {
-        button_end=0;//bouton shift relacher
+        button_shift=0; // Shift released.
+      }
+      //--------------------
+      // Next button
+      if (edit_button_state==4) {
+        button_next=1; // Next button pressed.
+      }
+      else{
+        button_next=0; // Next button released.
+        first_push_next=0; //flag que le bouton next a été relacher
+      }
+      //--------------------
+      // End button
+      if (edit_button_state==8){
+        button_end=1; //bouton end appuyer
+      }
+      else {
+        button_end=0; //bouton end relacher
         first_push_end=0;//flag que le bouton end a ete relacher
       }
       //--------------------
       //Bouton reset 
-      if (edit_button_state==16) button_reset=1;//bouton shift appuyer
-      else button_reset=0;//bouton shift relacher
+      if (edit_button_state==16) {
+        button_reset=1;//bouton reset appuyer
+      }
+      else {
+        button_reset=0; //bouton reset relacher
+      }
       //Bouton encoder
-      if (edit_button_state==32) button_encoder=1;
-      else button_encoder=0;
-
+      if (edit_button_state==32) {
+        button_encoder=1;
+      }
+      else {
+        button_encoder=0;
+      }
     }
   }
-  old_edit_button_state= reading;// on retient l'etat des boutons
-  //Serial.println(button_reset);
+  // we retain the state of the buttons
+  old_edit_button_state = reading;
 }

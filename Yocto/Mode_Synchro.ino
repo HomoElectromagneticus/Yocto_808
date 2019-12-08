@@ -1,15 +1,11 @@
-//===========================================================================
-// here we have all connected all the initializations of the differend interrups
-// for the three modes
-//Ici on a toutes lies initialisation de differnete interruption des 3 modes
-//
+//=============================================================================
+// All interrupt initializations for the three modes are here.
 
 void Mode_Synchro(byte mode) {
   switch (mode) {
 
-  //master mode=0
   case 0:
-  sync_mode = MASTER;
+    sync_mode = MASTER;
     cli();//arrete toutes les interruptions
     //UCSR1B &= ~(1 << RXCIE1); //disable UART1 interrupt
     PCMSK3 = 0x00;//disable l'interruption par PIN Change
@@ -19,7 +15,6 @@ void Mode_Synchro(byte mode) {
     sei();                     // turn on interrupts
     break;
 
-  //Din synchro mode=1
   case 1:
     sync_mode = DIN_SLAVE;
     cli();//arrete toutes les interruptions
@@ -32,7 +27,6 @@ void Mode_Synchro(byte mode) {
     sei();                     // turn on interrupts
     break;
 
-  //Midi Synchro mode=2
   case 2:
     sync_mode = MIDI_SLAVE;
     cli();//arrete toutes les interruptions

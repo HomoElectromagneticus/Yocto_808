@@ -4,14 +4,17 @@ void Mode_Song_Edit()
 {
   Verticalize_Pattern();//cf fonction
   
-  unsigned int reading = SR.Button_Step_Read();// on lit les boutons
+  unsigned int reading = SR.Button_Step_Read(); // We read the buttons.
 
+  // if they have changes, we record them
   if(reading!=old_step_button_state){// si ils ont changer on enregistre le temps
     millis_debounce_step_button=millis();
   }
-  if((millis()-millis_debounce_step_button) >= DEBOUNCE ){//apres le temps de debounce on compare la valeur des boutons avec l'ancienne valeur
+  // after the debounce time, we compare the new value of the buttons to the old value
+  if((millis()-millis_debounce_step_button) >= DEBOUNCE ){
     if(reading!=step_button_state){
       step_button_state=reading;
+
       if (button_shift){//si bouton shift appuyer
         for (byte i=0;i<16;i++){//loop autant de fois que de bouton step soit 16
           if (bitRead (step_button_state,i)){
@@ -40,9 +43,9 @@ void Mode_Song_Edit()
   old_step_button_state = reading;
   //-------------------------------------------
 
-  if(button_next && (!first_push_next)){
-    first_push_next=1;//flag que l'on vient d'appuyer sur next
-    nbr_pattern_song++;//on incremente la position du song
+  if (button_next && (!first_push_next)){
+    first_push_next=1; // Register that next has been pushed.
+    nbr_pattern_song++; //on incremente la position du song
     if (nbr_pattern_song >= MAX_PATTERN_SONG){// si la position arrive au max de la position 
       nbr_pattern_song=0;//on reset la position
     }
@@ -59,11 +62,14 @@ void Mode_Song_Edit()
     selected_pattern_changed=1;//flag que le pattern selectionner a change sert pour verticalise le pattern (cf verticalize)
   } 
   //-------------------------------------------
-  //ici on enregistre le nbr total de pattern dans le song
-  if(button_end && (!first_push_end)){//si on appuie sur le bouton end on enregistre le nbr total de pattern qu'il y a dans le song
-    first_push_end=1;//flag que l'on vient d'appuyer sur end
-    total_pattern_song[song_buffer] = nbr_pattern_song;
-    selected_song_edited=1;//flag que le song a été édité
+  // Write total song length.
+  if (button_end && (!first_push_end)) {
+    first_push_end=1; // Register that end has been pushed.
+    // If the number of patterns int the song was changed, save the song.
+    if (total_pattern_song[song_buffer] != nbr_pattern_song) {
+      total_pattern_song[song_buffer] = nbr_pattern_song;
+      selected_song_edited=1;
+    }
   }
 
   //-------------------------------------------
@@ -113,11 +119,11 @@ void Mode_Song_Play()
     selected_pattern_changed=1;//le pattern selectionne a change
 
   }
-if(!play){
-  if(button_reset) {
-    Reset_Song();
+  if(!play){
+    if(button_reset) {
+      Reset_Song();
+    }
   }
-}
 /*
   if (!play)
   {
