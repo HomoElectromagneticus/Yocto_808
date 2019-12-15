@@ -1,6 +1,9 @@
 
 /* Yocto clone TR808 Sequencer Firmware
 *
+*  v1.2c  -Fixed encoder push bug in pattern edit mode while MIDI synced
+*         -Track mode reworked to function more like pattern mode (last sync state remembered when changing modes)
+*
 *  v1.2b: -Roll mode for triggers now works
 *
 *  v1.2a: -Added TapWrite mode
