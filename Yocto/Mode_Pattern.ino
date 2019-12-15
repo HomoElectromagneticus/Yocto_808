@@ -232,26 +232,30 @@ void Mode_Pattern(){
 
       // Real-time clearing of steps with the encoder button.
       if (button_encoder) {
-        if (button_shift) {
+        if (button_shift && (last_button_shift != button_shift)) {
           // Clear the full row of steps for instrument. 
           pattern[pattern_buffer][selected_inst][0]=0;
           pattern[pattern_buffer][selected_inst][1]=0;
+          selected_pattern_edited=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
+          selected_pattern_edited_saved=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
         }
         else {
           // Clear only the steps that are playing.
-          if (step_count<16) {
+          if (step_count<16 && bitRead(pattern[pattern_buffer][selected_inst][0], step_count)) {
             bitClear(pattern[pattern_buffer][selected_inst][0], step_count);
+            selected_pattern_edited=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
+            selected_pattern_edited_saved=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
           }
-          else if (step_count>=16) {
+          else if (step_count>=16 && bitRead(pattern[pattern_buffer][selected_inst][1], step_count-16)) {
             bitClear(pattern[pattern_buffer][selected_inst][1], step_count-16);
+            selected_pattern_edited=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
+            selected_pattern_edited_saved=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
           }
         }
-        selected_pattern_edited=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
-        selected_pattern_edited_saved=1;//flag que le pattern a ete editer depuis la derniere sauvegarde
       }
 
       // TAP step entry.
-      if (button_shift && (last_button_shift != button_shift)) {
+      else if (button_shift && (last_button_shift != button_shift)) {
 
         // Quantising strategy:
         // TL;DR: If a tap is "late", we register it on the next step.
@@ -290,8 +294,13 @@ void Mode_Pattern(){
             bitSet(pattern[pattern_buffer][selected_inst][1], step_count-15);
           }
         }
+
+        // Make sure the change is saved.
+        selected_pattern_edited=1;
+        selected_pattern_edited_saved=1;
+
         // Some magic to play the actual sound.
-        // Seems logical not to  play the actual sound in the case it is pushed 
+        // Seems logical not to play the actual sound in the case it is pushed
         // to the next step, as it will play properly already by default once the step starts.
         // However in practice this usually does not work. Double triggers are better than no
         // triggers at all, so we go for the possible double trigger for now:
@@ -299,10 +308,8 @@ void Mode_Pattern(){
         Set_CPU_Trig_High();
         delayMicroseconds(10);
         Set_CPU_Trig_Low();
-        // Make sure the change is saved.
-        selected_pattern_edited=1;
-        selected_pattern_edited_saved=1;
       }
+
       last_button_shift = button_shift; // Store prev shift value.
     }
   }
