@@ -1,0 +1,24 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+    // project settings
+    "settings":
+    {
+        "AStyleFormatter":
+        {
+            "options_default":
+            {
+       
+                "style": "stroustrup",
+				"indent": "spaces",
+        		"indent-spaces": 4,
+        		"break-closing-brackets": true,
+        		"keep-one-line-statements": false,
+            },
+        }
+    }
+}
