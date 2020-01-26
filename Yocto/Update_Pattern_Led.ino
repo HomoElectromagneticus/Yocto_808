@@ -44,6 +44,7 @@ void Update_Pattern_Led()
                 temp_led_block = ((1 << last_selected_pattern) - 1);
                 temp_led_pattern = (((1 << first_selected_pattern) - 1) | (1 << first_selected_pattern));
             }
+
             //PAS PLAY et PAS SHIFT----------------------------------------------
             if (!play && !button_shift) {
                 // if there is no block, only one selected pattern
@@ -70,6 +71,7 @@ void Update_Pattern_Led()
                 else {
                     temp_step_led = (((1 * tempo_led_flag_block) << selected_pattern) ^ (tempo_led_flag << (step_count % 16)) ^ (temp_led_block ^ temp_led_pattern));
                 }
+
                 PORTC = (1 << (button_scale_count + 2)) + (1 << (!button_pattern_part + 6)); //Update les led de la parti edit suivant la scale et le nombre de pas auquel le sequenceur en est
             }
             //PLAY ET SHIFT-------------------------------------------------------
@@ -78,24 +80,33 @@ void Update_Pattern_Led()
                 PORTC = B11111100; //allumer toutes leds pour indiquer qu'on selectionne la bank
             }
         }
+
         // function which allows to update the scale LED with the pattern's scale
         //fonction qui permet d'updater la led de la scale en fonction de la scale du pattern
         switch (pattern_scale[pattern_buffer]) {
         case 12:
             button_scale_count = 0;
             break;
+
         case 24:
             button_scale_count = 1;
             break;
+
         case 16:
             button_scale_count = 2;
             break;
+
         case 32:
             button_scale_count = 3;
             break;
         }
-        if (step_count < 16 || step_count == 255)button_pattern_part = 0; //on initialise a 0 quand le pas courant est en dessous de 16 ou en mode stop soit step_count=255
-        else if (step_count >= 16)button_pattern_part = 1;
+
+        if (step_count < 16 || step_count == 255) {
+            button_pattern_part = 0;    //on initialise a 0 quand le pas courant est en dessous de 16 ou en mode stop soit step_count=255
+        }
+        else if (step_count >= 16) {
+            button_pattern_part = 1;
+        }
     }
 
     //Mode Pattern Edit
@@ -107,21 +118,25 @@ void Update_Pattern_Led()
         case 12:
             button_scale_count = 0;
             break;
+
         case 24:
             button_scale_count = 1;
             break;
+
         case 16:
             button_scale_count = 2;
             break;
+
         case 32:
             button_scale_count = 3;
             break;
         }
 
-        if ( (nbr_step[pattern_buffer] > 16) && button_part_switch ) {
+        if ((nbr_step[pattern_buffer] > 16) && button_part_switch) {
             if (step_count >= 16 && button_pattern_part == 0) {
                 button_pattern_part = 1;
             }
+
             if (step_count < 16 && button_pattern_part == 1) {
                 button_pattern_part = 0;
             }

@@ -350,10 +350,12 @@ void Set_CPU_Trig_Low()
 void Chenillard()
 {
     int temp = 0; //variable pour le chenillard
+
     for (byte i = 0; i < 16; i++) {
         temp |= 1 << i;
         SR.Led_Step_Write(temp);
         delay(30);
     }
+
     SR.Led_Step_Write(0);//initialise les led a 0 apres le chenillard
 }

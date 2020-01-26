@@ -47,7 +47,7 @@ void Check_Menu_Inst()
 
     // use to know if we have changed the selected song to be able to save the previous song
     //utiliser pour savoir si on a changer de song selectioner pour pouvoir sauver le song precedent
-    if ( next_selected_song != selected_song ) {
+    if (next_selected_song != selected_song) {
         selected_song_changed = 1;
         next_selected_song = selected_song;
     }

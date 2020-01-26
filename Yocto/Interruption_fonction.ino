@@ -19,6 +19,7 @@ void Count_96PPQN()
     }
     else {
         SR.ShiftOut_Update(temp_step_led, inst_roll);
+
         //MODE ROLL
         if (roll_mode && ppqn_count % roll_scale[scale_type][roll_pointer] == 0 && inst_roll > 0) {
             Send_Trig_Out(inst_roll);
@@ -40,9 +41,14 @@ void Count_96PPQN()
             // flash the tempo LED
             tempo_led_flag_block = !tempo_led_flag_block; //clignote au tempo
         }
+
         // we alternate the value of the flag of the LED tempo
-        if (ppqn_count >= 12) tempo_led_flag = 0; //on alterne la valeur du flag de la led tempo.
-        else tempo_led_flag = 1;
+        if (ppqn_count >= 12) {
+            tempo_led_flag = 0;    //on alterne la valeur du flag de la led tempo.
+        }
+        else {
+            tempo_led_flag = 1;
+        }
 
         //is it the start?
         //est ce le demarrage ?
@@ -54,6 +60,7 @@ void Count_96PPQN()
             //Send_Trig_Out();
             first_play = 0;
         }
+
         // the first note after the push on start needs to be shifted over / delayed one pulse
         // the PPQN needs to be savvy (?) with the first note of the machine in SLAVE DIN mode
         //la premiere note apres l'appuie sur start doit etre decale d'une pulsation
@@ -66,31 +73,40 @@ void Count_96PPQN()
         else if (ppqn_count >= pattern_scale[pattern_buffer]) {
             ppqn_count = 0;
             step_count++;
+
             if (step_count == (nbr_step[pattern_buffer] - 1)) {
                 middle_mesure_flag = 1;
+
                 //MODE PATTERN PLAY--------------------------------------------------------------------------------------------------------
                 if (selected_mode == PATTERN_MIDI_MASTER || selected_mode == PATTERN_MIDI_SLAVE || selected_mode == PATTERN_DIN_SLAVE) {
                     pattern_count++;//compte les mesure pour faire avance les pattern en mode song ou quand un block de pattern est selectionner
+
                     if (pattern_count > nbr_pattern_block) { //on reset le comteur quand il est superieur au nombre de pattern a lire dans le block
                         pattern_count = 0;
                     }
+
                     if (nbr_pattern_block_changed_A) {
                         nbr_pattern_block_changed_A = 0;
                         pattern_count = 0;
                     }
                 }
+
                 //MODE SONG PLAY--------------------------------------------------------------------------------------------------------
                 if (selected_mode == SONG_MIDI_MASTER || selected_mode == SONG_MIDI_SLAVE || selected_mode == SONG_DIN_SLAVE) {
                     pattern_count++;//compte les mesure pour faire avance les pattern en mode song ou quand un block de pattern est selectionner
+
                     if (pattern_count >= total_pattern_song[song_buffer]) { //on reset le comteur quand il est superieur au nombre de pattern dans le song
                         pattern_count = 0;
                     }
                 }
             }
+
             step_changed = 1; //flag que le pas a change
+
             if (step_count >= nbr_step[pattern_buffer]) {
                 step_count = 0;
                 end_mesure_flag = 1;
+
                 //------------------------------------------------
                 if (load_pattern_ok) { //si le pattern a bien ete loader
                     pattern_buffer = !pattern_buffer; //on switche entre les deux pattern present dans le buffer au debut de la mesure
@@ -106,15 +122,19 @@ void Count_96PPQN()
             MIDI_Send(0xfc);//Serial1.write(0xfc);//Midi Stop
             first_stop = 0;
         }
+
         if (selected_mode == PATTERN_MIDI_MASTER || selected_mode == PATTERN_MIDI_SLAVE || selected_mode == PATTERN_DIN_SLAVE) {
             pattern_count = 0; //reinitilise le compteur
         }
+
         if ((selected_mode == SONG_MIDI_MASTER || selected_mode == SONG_MIDI_SLAVE || selected_mode == SONG_DIN_SLAVE) && (button_reset)) {
             pattern_count = 0; //reinitilise le compteur
         }
+
         step_count = 0; //reinitialise a 0 le step compteur
         debut_mesure_count = 0;
         Set_Dinsync_Run_Low();
+
         if (tempo_led_count >= 48) {
             tempo_led_count = 0; //si le compteur egale un temps on le reinitialise
             tempo_led_flag = !tempo_led_flag; //on alterne la valeur du flag de la led tempo.
@@ -123,7 +143,7 @@ void Count_96PPQN()
 
     // Send DinSync clock (at 24ppqn).
     if ((ppqn_count % 2) == 1) { //modulo de 2 = 1 car la clock PPQN et la clock din sont decaler d'un demi cylce
-        bitWrite(PORTD, 4, !(bitRead (PIND, 4)));
+        bitWrite(PORTD, 4, !(bitRead(PIND, 4)));
     }
 
     // Send MIDI beat clock (at 24ppqn).
@@ -147,6 +167,7 @@ void Count_Clock()
     if (sync_mode == MASTER || sync_mode == MIDI_SLAVE) {
         if (dinsync_first_clock_timeout != 0) {
             dinsync_first_clock_timeout--;
+
             if (dinsync_clock_timeout == 0) {
                 Set_Dinsync_Clock_High();
             }
@@ -154,6 +175,7 @@ void Count_Clock()
 
         if (dinsync_clock_timeout != 0) {
             dinsync_clock_timeout--;
+
             if (dinsync_clock_timeout == 0) {
                 Set_Dinsync_Clock_Low();
             }
@@ -167,7 +189,7 @@ void Count_Clock()
 // PD4= Din CLK      PD5= Din Start
 // a la sync Master ici on est en 24PPQN et non en 96PPQN
 ///////////////////////////////////////////////////////////////////////
-ISR (PCINT3_vect)
+ISR(PCINT3_vect)
 {
     Reset_Trig_Out();
 
@@ -182,6 +204,7 @@ ISR (PCINT3_vect)
         }
         else {
             SR.ShiftOut_Update(temp_step_led, inst_roll);
+
             //MODE ROLL
             if (roll_mode && ppqn_count % (roll_scale[scale_type][roll_pointer] / 4) == 0 && inst_roll > 0) {
                 Send_Trig_Out(inst_roll);
@@ -194,8 +217,13 @@ ISR (PCINT3_vect)
             tempo_led_count = 0; //si le compteur egale un temps on le reinitialise
             tempo_led_flag_block = !tempo_led_flag_block; //clignote au tempo
         }
-        if (ppqn_count >= 3) tempo_led_flag = 0; //on alterne la valeur du flag de la led tempo.
-        else tempo_led_flag = 1;
+
+        if (ppqn_count >= 3) {
+            tempo_led_flag = 0;    //on alterne la valeur du flag de la led tempo.
+        }
+        else {
+            tempo_led_flag = 1;
+        }
 
         //Si c'est le premier pas apres le play
         if (first_play) {
@@ -206,6 +234,7 @@ ISR (PCINT3_vect)
             Send_Trig_Out(inst_step_buffer[0][pattern_buffer] & (~inst_mute));
             first_play = 0;
         }
+
         MIDI_Send(0xf8);//Serial1.write (0xf8);//MIDI CLOCK Tick
         ppqn_count++;     //incremente compteur PPQN
         tempo_led_count++;//incremente le compteur pour la led de tempo
@@ -214,31 +243,40 @@ ISR (PCINT3_vect)
         if (ppqn_count == (pattern_scale[pattern_buffer] / 4)) {
             ppqn_count = 0;
             step_count++;
+
             if (step_count == (nbr_step[pattern_buffer] - 1)) {
                 middle_mesure_flag = 1; //indique le mileu de la meusure enfin que la mesure est avancé
+
                 //MODE PATTERN PLAY--------------------------------------------------------------------------------------------------------
                 if (selected_mode == PATTERN_MIDI_MASTER || selected_mode == PATTERN_MIDI_SLAVE || selected_mode == PATTERN_DIN_SLAVE) {
                     pattern_count++;//compte les mesure pour faire avance les pattern en mode song ou quand un block de pattern est selectionner
+
                     if (pattern_count > nbr_pattern_block) { //on reset le comteur quand il est superieur au nombre de pattern a lire dans le block
                         pattern_count = 0;
                     }
+
                     if (nbr_pattern_block_changed_A) {
                         nbr_pattern_block_changed_A = 0;
                         pattern_count = 0;
                     }
                 }
+
                 //MODE SONG PLAY--------------------------------------------------------------------------------------------------------
                 if (selected_mode == SONG_MIDI_MASTER || selected_mode == SONG_MIDI_SLAVE || selected_mode == SONG_DIN_SLAVE) {
                     pattern_count++;//compte les mesure pour faire avance les pattern en mode song ou quand un block de pattern est selectionner
+
                     if (pattern_count >= total_pattern_song[song_buffer]) { //on reset le comteur quand il est superieur au nombre de pattern dans le song
                         pattern_count = 0;
                     }
                 }
             }
+
             step_changed = 1; //flag que le pas a change
+
             //Set_CPU_Trig_High();
             if (step_count >= nbr_step[pattern_buffer]) {
                 step_count = 0;
+
                 if (load_pattern_ok) {
                     pattern_buffer = !pattern_buffer; //permet de switcher entre les deux pattern present dans le buffer au debut de la mesure
                     load_pattern_ok = 0;
@@ -253,17 +291,21 @@ ISR (PCINT3_vect)
             MIDI_Send(0xfc);//Serial1.write(0xfc);//Midi Stop
             first_stop = 0;
         }
+
         if (selected_mode == PATTERN_MIDI_MASTER || selected_mode == PATTERN_MIDI_SLAVE || selected_mode == PATTERN_DIN_SLAVE) {
             pattern_count = 0; //reinitilise le compteur
         }
+
         if ((selected_mode == SONG_MIDI_MASTER || selected_mode == SONG_MIDI_SLAVE || selected_mode == SONG_DIN_SLAVE) && (button_reset)) {
             pattern_count = 0; //reinitilise le compteur
         }
+
         MIDI_Send(0xf8);//Serial1.write (0xf8);
         step_count = 0; //reinitialise a -1 le compteur de pas pour pouvoir lire le premier pas
         ppqn_count = 0;
         SR.ShiftOut_Update(temp_step_led, 0);
         tempo_led_count++;//incremente le compteur pour la led de tempo
+
         if (tempo_led_count >= 12) {
             tempo_led_count = 0; //si le compteur egale un temps on le reinitialise
             tempo_led_flag = !tempo_led_flag; //on alterne la valeur du flag de la led tempo.

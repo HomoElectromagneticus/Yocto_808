@@ -31,19 +31,23 @@ void Save_Song()
     byte nbr_page = (SONG_SIZE_BYTE / SIZE_PAGE_MAX);
     unsigned int adress = OFFSET_SONG + old_selected_song * SONG_SIZE_BYTE;
     unsigned int offset = 0;
+
     for (char i = 0 ; i <= nbr_page ; i++) {
         Wire_Begin_TX(adress + offset);
+
         for (char j = 0; j < SIZE_PAGE_MAX; j++) {
-            Wire.write( (byte)song[offset + j][song_buffer]); //envoi la valeur du numero de pattern correspondant a l'address
+            Wire.write((byte)song[offset + j][song_buffer]);  //envoi la valeur du numero de pattern correspondant a l'address
         }
+
         Wire.endTransmission();
         delay(DELAY_WR);//neccessaire avant d'ecrire une autre page
         offset += SIZE_PAGE_MAX;
     }
+
     adress = OFFSET_SONG_SETUP + old_selected_song * SONG_SETUP_SIZE_BYTE;
     Wire_Begin_TX(adress);
     Serial.println(total_pattern_song[song_buffer]);
-    Wire.write ( (byte)total_pattern_song[song_buffer]);
+    Wire.write((byte)total_pattern_song[song_buffer]);
     Wire.endTransmission();
     delay(DELAY_WR);//neccessaire avant d'ecrire une autre page
 }
@@ -59,9 +63,11 @@ void Load_Song()
         Wire_Begin_TX(adress + offset);
         Wire.endTransmission();
         Wire.requestFrom(0x50, SIZE_PAGE_MAX); //request des 64octets de la page du song
+
         for (char j = 0; j < SIZE_PAGE_MAX; j++) { //loop 64 fois pour ecrire la page
             song[offset + j][!song_buffer] = Wire.read(); //load dans le variable a l'adress de l'array le numero du pattern
         }
+
         offset += SIZE_PAGE_MAX;
     }
 
@@ -95,8 +101,8 @@ void Save_Pattern()
         for (char j = 0; j < 2; j++) { //loop deux fois pour les deux parti du pattern 1a16 et 17 a 32
             byte lowbyte = ((pattern[pattern_buffer][i][j] >> 0) & 0xFF); //stock les 8 premier bits du pattern
             byte highbyte = ((pattern[pattern_buffer][i][j] >> 8) & 0xFF); // et les 8 bit "fort"
-            Wire.write( (byte)lowbyte);//envoi
-            Wire.write( (byte)highbyte);
+            Wire.write((byte)lowbyte); //envoi
+            Wire.write((byte)highbyte);
         }
     }
 
@@ -105,8 +111,8 @@ void Save_Pattern()
 
     adress = OFFSET_PATTERN_SETUP + old_pattern_nbr * PTRN_SETUP_SIZE_BYTE;
     Wire_Begin_TX(adress);//commence la transmission a l'adress du pattern selectionner
-    Wire.write( (byte)nbr_step[pattern_buffer]);//envoi le nombre de step
-    Wire.write( (byte)pattern_scale[pattern_buffer]);//envoi la scale du pattern
+    Wire.write((byte)nbr_step[pattern_buffer]); //envoi le nombre de step
+    Wire.write((byte)pattern_scale[pattern_buffer]); //envoi la scale du pattern
     Wire.endTransmission();
     delay(DELAY_WR);//neccessaire avant d'ecrire une autre page
 }
@@ -116,21 +122,23 @@ void Save_Paste_Pattern()
 {
     unsigned int adress = OFFSET_PATTERN + pattern_nbr * PTRN_SIZE_BYTE;
     Wire_Begin_TX(adress);//commence la transmission a l'adress du pattern selectionner
+
     for (char i = 0; i < NBR_INST; i++) { //loop autant de fois que d'instruments
         for (char j = 0; j < 2; j++) { //loop deux fois pour les deux parti du pattern 1a16 et 17 a 32
             byte lowbyte = ((copy_pattern_buffer[i][j] >> 0) & 0xFF); //stock les 8 premier bits du pattern
             byte highbyte = ((copy_pattern_buffer[i][j] >> 8) & 0xFF); // et les 8 bit "fort"
-            Wire.write( (byte)lowbyte);//envoi
-            Wire.write( (byte)highbyte);
+            Wire.write((byte)lowbyte); //envoi
+            Wire.write((byte)highbyte);
         }
     }
+
     Wire.endTransmission();
     delay(DELAY_WR);//delay necessaire pour le bonne enregistrement du setup pattern
 
     adress = OFFSET_PATTERN_SETUP + pattern_nbr * PTRN_SETUP_SIZE_BYTE;
     Wire_Begin_TX(adress);//commence la transmission a l'adress 16384 qui correspond au 16pattern*16Bank*64octets
-    Wire.write( (byte)copy_pattern_nbr_step);//envoi le nombre de step
-    Wire.write( (byte)copy_pattern_scale);//envoi la scale du pattern
+    Wire.write((byte)copy_pattern_nbr_step); //envoi le nombre de step
+    Wire.write((byte)copy_pattern_scale); //envoi la scale du pattern
     Wire.endTransmission();
     delay(DELAY_WR);//delay necessaire pour le bonne enregistrement du setup pattern
 }
@@ -142,6 +150,7 @@ void Load_Pattern()
     Wire_Begin_TX(adress);//commence la transmission a l'adress du pattern selectionner
     Wire.endTransmission();
     Wire.requestFrom(0x50, PTRN_SIZE_BYTE); //request des 64octets du pattern a l'adresse de l'eeprom
+
     for (char i = 0; i < NBR_INST; i++) { //loop autant de fois que d'instruments
         for (char j = 0; j < 2; j++) { //loop deux fois pour les deux parti du pattern 1a16 et 17 a 32
             pattern[!pattern_buffer][i][j] = ((Wire.read() << 0) & 0xFF) + ((Wire.read() << 8) & 0xFF00); //on load le pattern dans l'autre parti du buffer
@@ -174,21 +183,23 @@ void Clear_EEprom_Pattern()
 {
     unsigned int adress = OFFSET_PATTERN + pattern_nbr * PTRN_SIZE_BYTE;
     Wire_Begin_TX(adress);//commence la transmission a l'adress du pattern selectionner
+
     for (char i = 0; i < NBR_INST; i++) { //loop autant de fois que d'instruments
         for (char j = 0; j < 2; j++) { //loop deux fois pour les deux parti du pattern 1a16 et 17 a 32
             byte lowbyte = 0;//clear
             byte highbyte = 0;// clear
-            Wire.write( (byte)lowbyte);//envoi
-            Wire.write( (byte)highbyte);
+            Wire.write((byte)lowbyte); //envoi
+            Wire.write((byte)highbyte);
         }
     }
+
     Wire.endTransmission();
     delay(DELAY_WR);
 
     adress = OFFSET_PATTERN_SETUP + pattern_nbr * PTRN_SETUP_SIZE_BYTE;
     Wire_Begin_TX(adress);//commence la transmission a l'adress 16384 qui correspond au 16pattern*16Bank*64octets
-    Wire.write( (byte)16);//initialise le pattern a 16 pas
-    Wire.write( (byte)24);//initialise le pattern avec une scale de 1/16 soit 24 pulses entre chaque pas
+    Wire.write((byte)16); //initialise le pattern a 16 pas
+    Wire.write((byte)24); //initialise le pattern avec une scale de 1/16 soit 24 pulses entre chaque pas
     Wire.endTransmission();
     delay(DELAY_WR);
 
@@ -538,7 +549,7 @@ void Initialize_EEprom()
 
 
         //loop autant de fois que de nombre de pattern
-        for ( x = 0; x < PTRN_NB ; x++) {
+        for (x = 0; x < PTRN_NB ; x++) {
 
             unsigned int adress = OFFSET_PATTERN + x * PTRN_SIZE_BYTE;
             Wire_Begin_TX(adress);//commence la transmission a l'adress 16384 qui correspond au 16pattern*16Bank*64octets
@@ -549,57 +560,68 @@ void Initialize_EEprom()
                     unsigned long smask = 1;
                     unsigned long resul = 0;
 
-                    if ( x < 16 ) { // on prend un FactoryLib si x < ....
+                    if (x < 16) {   // on prend un FactoryLib si x < ....
                         while (rmask) {
-                            if ( ( FactoryLib[x].Instr[i] & rmask ) == rmask )  resul |= smask;
+                            if ((FactoryLib[x].Instr[i] & rmask) == rmask) {
+                                resul |= smask;
+                            }
+
                             rmask >>= 1;
                             smask <<= 1;
                         }
                     }
 
-                    byte c = ( resul & 0x000000FF );
-                    Wire.write( (byte)c);//envoi
-                    c = ( resul & 0x0000FF00 ) >> 8;
-                    Wire.write( (byte)c);//envoi
-                    c = ( resul & 0x00FF0000 ) >> 16;
-                    Wire.write( (byte)c);//envoi
-                    c = ( resul & 0xFF000000 ) >> 24;
-                    Wire.write( (byte)c);//envoi
+                    byte c = (resul & 0x000000FF);
+                    Wire.write((byte)c); //envoi
+                    c = (resul & 0x0000FF00) >> 8;
+                    Wire.write((byte)c); //envoi
+                    c = (resul & 0x00FF0000) >> 16;
+                    Wire.write((byte)c); //envoi
+                    c = (resul & 0xFF000000) >> 24;
+                    Wire.write((byte)c); //envoi
                 }
 
             }
+
             Wire.endTransmission();
             delay(DELAY_WR);
 
             adress = OFFSET_PATTERN_SETUP + x * PTRN_SETUP_SIZE_BYTE;
             Wire_Begin_TX(adress);
-            if ( x < 16 ) { // on prend un FactoryLib si x < ....
-                Wire.write(  (byte)FactoryLib[x].Step );//initialise le pattern a 16 pas
-                Wire.write(  (byte)FactoryLib[x].Scale );//initialise le pattern a 16 pas
+
+            if (x < 16) {   // on prend un FactoryLib si x < ....
+                Wire.write((byte)FactoryLib[x].Step);   //initialise le pattern a 16 pas
+                Wire.write((byte)FactoryLib[x].Scale);   //initialise le pattern a 16 pas
             }
             else {
-                Wire.write( (byte)16 );//initialise le pattern a 16 pas
-                Wire.write( (byte)24 );//initialise le pattern avec une scale de 1/16 soit 24 pulses entre chaque pas
+                Wire.write((byte)16);  //initialise le pattern a 16 pas
+                Wire.write((byte)24);  //initialise le pattern avec une scale de 1/16 soit 24 pulses entre chaque pas
             }
+
             Wire.endTransmission();
             delay(DELAY_WR);
 
             temp |= 1 << (x / 16);
             SR.Led_Step_Write(temp);
         }
+
         delay(100);
         SR.Led_Step_Write(0);
 
         // On initialise les SONG
         temp = 0;
+
         for (x = 0; x < SONG_NB; x++) {
             byte nbr_page = (SONG_SIZE_BYTE / SIZE_PAGE_MAX);
             unsigned int adress = OFFSET_SONG + x * SONG_SIZE_BYTE;
+
             for (char i = 0; i < nbr_page; i++) {
                 Wire_Begin_TX(adress);
+
                 for (char j = 0; j < SIZE_PAGE_MAX; j++) {
                     Wire.write((byte)0);//envoi la valeur du numero de pattern correspondant a l'address
                 }
+
                 Wire.endTransmission();
                 delay(DELAY_WR);//neccessaire avant d'ecrire une autre page
                 adress += SIZE_PAGE_MAX;
@@ -613,6 +635,7 @@ void Initialize_EEprom()
             temp |= 1 << x;
             SR.Led_Step_Write(temp);
         }
+
         delay(100);
         SR.Led_Step_Write(0);
 
@@ -633,6 +656,7 @@ void Initialize_EEprom()
 
 
     }
+
     button_init = 0; //reinitialise le bouton init pour eviter que la loop se fasse deux fois
 }
 
@@ -653,6 +677,7 @@ void Dump_EEprom()
         // Then the whole thing will be wrapped with the SysEx header and end (6 bytes) and sent over midi (total: 84 bytes).
         header[4] = 0x03; // SysEx Pattern data identifier.
         byte buffer[78];
+
         for (int x = 0; x < PTRN_NB; x++) { // Loop over all patterns
             byte pattern[PTRN_POSITION_BYTE + PTRN_SIZE_BYTE + PTRN_SETUP_SIZE_BYTE]; // This will hold the pattern data.
 
@@ -708,6 +733,7 @@ void Dump_EEprom()
         // Lightshow to indicate we are done
         Chenillard();
     }
+
     button_play = 0; // Prevent the loop from running twice
 }
 
@@ -749,6 +775,7 @@ void Receive_EEprom(const byte* sysex, unsigned size)
                 for (char i = 1; i < 65; i++) { // Start at one, end after sending the 64 pattern bytes from the buffer.
                     Wire.write(pattern_data[i]);
                 }
+
                 Wire.endTransmission();
                 delay(DELAY_WR); // Needed before we write another page.
 
@@ -780,9 +807,11 @@ void Save_Midi_Note()
     if (inst_midi_note_edited) {
         inst_midi_note_edited = 0;
         Wire_Begin_TX(OFFSET_MIDI_NOTE);
+
         for (int i = 0; i < 16; i++) {
             Wire.write((byte)inst_midi_note[i]);//envoi le numero des note midi
         }
+
         Wire.endTransmission();
         delay(DELAY_WR);
     }
@@ -795,6 +824,7 @@ void Load_Midi_Note()
     Wire_Begin_TX(OFFSET_MIDI_NOTE);
     Wire.endTransmission();
     Wire.requestFrom(0x50, 16); //request 16 pour les notes des instru
+
     for (int i = 0; i < 16; i++) {
         inst_midi_note[i] = Wire.read(); //envoi le numero des note midi
     }
@@ -818,15 +848,18 @@ void Load_Midi_Channel()
     Wire.endTransmission();
     Wire.requestFrom(0x50, 1);
     selected_channel = Wire.read(); //envoi le numero des note midi
-    if (selected_channel > 15) selected_channel = 0; //si le canal est superieur a 16 on choisi le 1
+
+    if (selected_channel > 15) {
+        selected_channel = 0;    //si le canal est superieur a 16 on choisi le 1
+    }
 }
 
 
 void Wire_Begin_TX(uint16_t address)
 {
     Wire.beginTransmission(0x50);
-    Wire.write( (byte)(address >> 8));
-    Wire.write( (byte)(address & 0xFF));
+    Wire.write((byte)(address >> 8));
+    Wire.write((byte)(address & 0xFF));
 }
 
 
@@ -834,7 +867,8 @@ void Play_Version()
 {
     if (button_reset) {
         byte count = 0;
-        while ( count < major_version ) {
+
+        while (count < major_version) {
             PORTC |= (1 << 7);
             Set_CPU_Trig_High();
             SR.ShiftOut_Update(temp_step_led, 0b10);
@@ -845,8 +879,10 @@ void Play_Version()
             delay(100);
             count++;
         }
+
         count = 0;
-        while ( count < minor_version ) {
+
+        while (count < minor_version) {
             PORTC |= (1 << 6);
             Set_CPU_Trig_High();
             SR.ShiftOut_Update(temp_step_led, 0b10000000);
@@ -858,5 +894,6 @@ void Play_Version()
             count++;
         }
     }
+
     button_reset = 0;
 }

@@ -5,10 +5,12 @@ void Mode_Pattern()
 
     // we read the buttons
     unsigned int reading = SR.Button_Step_Read();// on lit les boutons
+
     // if they have changes, we record them
     if (reading != old_step_button_state) { // si ils ont changer on enregistre le temps
         millis_debounce_step_button = millis();
     }
+
     // after the debounce time, we compare the new value of the buttons to the old value
     if ((millis() - millis_debounce_step_button) >= DEBOUNCE) { //apres le temps de debounce on compare la valeur des boutons avec l'ancienne valeur
         if (reading != step_button_state) {
@@ -19,12 +21,15 @@ void Mode_Pattern()
                 // initialize the the array of the value of each step button
                 step_button_just_pressed[i] = 0; //initialise l'array de la valeur de chaque bouton step
                 step_button_current_state[i] = bitRead(reading, i);
+
                 if (step_button_current_state[i] != step_button_previous_state[i]) {
                     if ((step_button_pressed[i] == LOW) && (step_button_current_state[i] == HIGH)) {
                         step_button_just_pressed[i] = 1;
                     }
+
                     step_button_pressed[i] = step_button_current_state[i];
                 }
+
                 step_button_previous_state[i] = step_button_current_state[i];
             }
 
@@ -39,16 +44,22 @@ void Mode_Pattern()
                             if (solo_mode) {
                                 // mute all the instruments except the one pressed with "SOLO EXCLUSIVE"
                                 inst_mute = (B11111111 & (B11111111 << 8)) | ~(1 << i); //on mute tous les intrus sauf celui appuyer SOLO EXCLUSIF
+
                                 for (byte ct = 0; ct < 16; ct++) { //on reinitialise les compteur des instrument smuter a 1 pour pouvoir les demuter en reappuyant dessus
                                     step_button_count[ct] = 1;
                                 }
+
                                 step_button_count[i] = 0;
                             }
-                            else step_button_count[i]++;
+                            else {
+                                step_button_count[i]++;
+                            }
+
                             switch (step_button_count[i]) {
                             case 1:
                                 bitSet(inst_mute, i);
                                 break;
+
                             case 2:
                                 bitClear(inst_mute, i);
                                 step_button_count[i] = 0;
@@ -65,8 +76,13 @@ void Mode_Pattern()
                 //ROLL MODE----------------------------------------------------------------------------------------------------
                 if (roll_mode) {
                     inst_roll = step_button_state;
-                    if ((pattern_scale[pattern_buffer] % 16) == 0) scale_type = 1; //permet de savoir si le roulement doit etre en ternaire ou binaire suivant la scale du pattern
-                    else scale_type = 0; //0 = binaire scale   1= ternaire scale
+
+                    if ((pattern_scale[pattern_buffer] % 16) == 0) {
+                        scale_type = 1;    //permet de savoir si le roulement doit etre en ternaire ou binaire suivant la scale du pattern
+                    }
+                    else {
+                        scale_type = 0;    //0 = binaire scale   1= ternaire scale
+                    }
                 }
                 //NORMAL MODE----------------------------------------------------------------------------------------------------
                 else if (!mute_mode && !roll_mode) {
@@ -76,7 +92,7 @@ void Mode_Pattern()
                     if (button_shift) { //si bouton shift appuyer
                         // loop as many time as the step button becomes 16
                         for (byte i = 0; i < 16; i++) { //loop autant de fois que de bouton step soit 16
-                            if (bitRead (step_button_state, i)) {
+                            if (bitRead(step_button_state, i)) {
                                 // if the shift button is pressed, we retun to the selected bank
                                 // si le bouton shift est appuyer on retourne la bank selectionner selectionner
                                 pattern_bank = i;
@@ -94,6 +110,7 @@ void Mode_Pattern()
                             if (step_button_just_pressed[i]) { //si un bouton est papuyer
                                 // increment the counter of the number of pushed buttons
                                 pushed_button_step_count++;//incrementer le compteur du nombre de bouton appuyer
+
                                 // if it is the first pushed button
                                 if (pushed_button_step_count == 1) { //si c'est le premier bouton appuyer
                                     // we record like the first selected pattern
@@ -112,6 +129,7 @@ void Mode_Pattern()
                                 }
                             }
                         }
+
                         // this function allows the variable "selected_pattern" to always store the smallest selected pattern
                         //Cette fonction permet que le variable selected_pattern stock toujours le plus petit pattern selectionner
                         if ((first_selected_pattern > last_selected_pattern) && (last_selected_pattern != 255)) { //si le premier pattern selectionner est plus grand que le dernier alors le pattern selectionner est egal au dernier pattern
@@ -122,6 +140,7 @@ void Mode_Pattern()
                             low_selected_pattern = first_selected_pattern;
                             selected_pattern_changed = 1; //flag que le pattern selectionner a change
                         }
+
                         selected_pattern = low_selected_pattern;
 
                         if (last_selected_pattern == 255) { //si il n'y a pas de dernier pattern selectionner
@@ -130,11 +149,13 @@ void Mode_Pattern()
                         else { //sinon
                             nbr_pattern_block = abs(last_selected_pattern - first_selected_pattern); //le difference du premier et du dernier pattern donne le nombre de pattern dans le block
                             nbr_pattern_block_changed = 1; //flag que le block a change sert pour reinitialiser en stop
+
                             if (play) {
                                 nbr_pattern_block_changed_A = 1; //flag que le block a change sert dans l'interuption
                             }
                         }
                     }
+
                     //pattern_nbr = selected_pattern+(16*pattern_bank);//le numero du pattern est egal au pattern selectionner plus 16 fois la bank soit
                     //255 pattern
 
@@ -148,7 +169,7 @@ void Mode_Pattern()
                     if (button_pattern_part_pressed) { // If we are pressing the pattern part 0-16/17-32 buttons.
                         // loop as many times as the step button is 16
                         for (byte i = 0; i < 16; i++) { //loop autant de fois que de bouton step soit 16
-                            if (bitRead (step_button_state, i)) {
+                            if (bitRead(step_button_state, i)) {
                                 // if the shift button is pressed, we return the value of number of steps
                                 // si le bouton shift est appuyer on retourne la valeur du nombre de step
                                 nbr_step[pattern_buffer] = (i + (16 * button_pattern_part)) + 1;
@@ -172,7 +193,7 @@ void Mode_Pattern()
                 else if (!play) { //si pas en play
                     if (button_shift) { //si bouton shift appuyer
                         for (byte i = 0; i < 16; i++) { //loop autant de fois que de bouton step soit 16
-                            if (bitRead (step_button_state, i)) {
+                            if (bitRead(step_button_state, i)) {
                                 // if the shift button is pressed, we return the chosen bank
                                 // si le bouton shift est appuyer on retourne la bank selectionner selectionner
                                 pattern_bank = i;
@@ -182,7 +203,7 @@ void Mode_Pattern()
                     }
                     else {
                         for (byte i = 0; i < 16; i++) { //loop autant de fois que de bouton step soit 16
-                            if (bitRead (step_button_state, i)) {
+                            if (bitRead(step_button_state, i)) {
                                 // we return the value of the chosen pattern
                                 //on retourne la valeur du pattern selectionner
                                 selected_pattern = i;
@@ -190,6 +211,7 @@ void Mode_Pattern()
                             }
                         }
                     }
+
                     //pattern_nbr = selected_pattern+(16*pattern_bank);//le numero du pattern est egal au pattern selectionner plus 16 fois la bank soit
                     //255 pattern
                     //Serial.println(pattern_nbr,DEC);
@@ -213,8 +235,10 @@ void Mode_Pattern()
         selected_pattern_changed = 1; //flag que le pattern selectionner a change permet de verticalize
         middle_mesure_flag = 0; //reset flag que la mesure a avancé
     }
+
     if (!play) {
         nbr_pattern_block_changed_A = 0; //flag que le block a change
+
         if (nbr_pattern_block_changed) {
             nbr_pattern_block_changed = 0;
             middle_mesure_flag = 0;
@@ -222,6 +246,7 @@ void Mode_Pattern()
             selected_pattern_changed = 1; //flag que le pattern selectionner a change
         }
     }
+
     old_step_button_state = reading;
     pattern_nbr = selected_pattern + (16 * pattern_bank); //le numero du pattern est egal au pattern selectionner plus 16 fois la bank soit 255 pattern
 
@@ -276,7 +301,7 @@ void Mode_Pattern()
                 // There most likely is a more elegant way.
                 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 // Check if we can place the note on the current step:
-                if (ppqn_count % (pattern_scale[pattern_buffer] / 4) < (int) (pattern_scale[pattern_buffer] / 8)) {
+                if (ppqn_count % (pattern_scale[pattern_buffer] / 4) < (int)(pattern_scale[pattern_buffer] / 8)) {
                     if (step_count < 16) {
                         bitSet(pattern[pattern_buffer][selected_inst][0], step_count);
                     }
@@ -318,6 +343,7 @@ void Mode_Pattern()
     //Unmute all
     if (button_encoder && (selected_mode == PATTERN_MIDI_MASTER || selected_mode == PATTERN_MIDI_SLAVE || selected_mode == PATTERN_DIN_SLAVE) && mute_mode) {
         inst_mute = 0;
+
         for (byte i = 0; i < 16; i++) {
             step_button_count[i] = 0;
         }

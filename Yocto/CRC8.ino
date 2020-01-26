@@ -62,5 +62,6 @@ uint8_t calc_CRC8(uint8_t *buff, uint16_t size)
     for (i = 0; i < size; i++) {
         crc = *(CRC8Table + (crc ^ (*(buff + i))));
     }
+
     return crc;
 }

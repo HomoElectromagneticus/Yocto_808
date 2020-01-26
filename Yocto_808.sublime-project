@@ -4,12 +4,27 @@
     }],
     "settings": {
         "AStyleFormatter": {
+            "autoformat_on_save": true,
             "options_default": {
+                // Default bracket style.
                 "style": "stroustrup",
+
+                // Tab options.
                 "indent": "spaces",
                 "indent-spaces": 4,
+
+                // Padding.
+                "break-blocks": "default",
                 "break-closing-brackets": true,
-                "keep-one-line-statements": false
+                "pad-header": true,
+                "unpad-paren": true,
+                "pad-paren": false,
+
+                // Formatting.
+                "keep-one-line-statements": false,
+                "keep-one-line-blocks": false,
+                "add-brackets": true,
+                "convert-tabs": true,
             }
         }
     }

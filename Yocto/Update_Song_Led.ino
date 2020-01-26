@@ -1,14 +1,14 @@
 void Update_Song_Led()
 {
-    if ( button_shift) {
+    if (button_shift) {
         temp_step_led = (1 << pattern_bank);
     }
     else {
-        if ( !play ) {
+        if (!play) {
             temp_step_led = (1 * tempo_led_flag << (selected_pattern));
         }
         else if (play) {
-            temp_step_led = ( ( 1 << selected_pattern ) ^ ( tempo_led_flag << step_count )); //si play et pas shift button la led defile et le pattern selectionner clignote au tempo
+            temp_step_led = ((1 << selected_pattern) ^ (tempo_led_flag << step_count));      //si play et pas shift button la led defile et le pattern selectionner clignote au tempo
         }
     }
 
